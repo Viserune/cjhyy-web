@@ -1,0 +1,572 @@
+<!--/* AI辅助生成:使用deepseek-R1/deepseek-v3 ,2026-2 */-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>与张若虚对话</title>
+    <script src="../assets/config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif;
+            min-height: 100vh;
+            background-image: url('../assets/images/background3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(29, 16, 8, 0.5), rgba(58, 32, 18, 0.28));
+            z-index: -1;
+        }
+        
+        .container {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            max-width: 1400px;
+            width: 90%;
+        }
+        
+        /* 虚拟人物区域 */
+        .character-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .character-avatar {
+            width: 350px;
+            height: 500px;
+            background: linear-gradient(155deg, rgba(242, 226, 190, 0.95), rgba(216, 184, 132, 0.92));
+            border-radius: 18px;
+            border: 2px solid rgba(108, 70, 39, 0.78);
+            box-shadow: 0 10px 40px rgba(26, 14, 7, 0.45);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .avatar-image {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 85%;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .character-name {
+            color: #4f2e18;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 1px 0 rgba(255, 244, 217, 0.7);
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .character-title {
+            color: rgba(86, 50, 27, 0.95);
+            font-size: 18px;
+            text-shadow: 0 1px 0 rgba(255, 244, 217, 0.7);
+            letter-spacing: 2px;
+        }
+        
+        .ask-btn {
+            padding: 15px 50px;
+            background: linear-gradient(180deg, rgba(243, 224, 188, 0.96), rgba(218, 186, 134, 0.93));
+            border: 2px solid rgba(112, 75, 44, 0.82);
+            color: #53301a;
+            font-size: 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 0 1px 0 rgba(255, 244, 217, 0.6);
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+        
+        .ask-btn:hover {
+            background: linear-gradient(180deg, rgba(249, 234, 202, 0.98), rgba(227, 199, 150, 0.95));
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(62, 37, 19, 0.35);
+        }
+        
+        .ask-btn-hint {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            color: #f6e5c0;
+            font-size: 14px;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            animation: fadeInOut 3s infinite;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* 对话区域 */
+        .chat-section {
+            flex: 1.5;
+            background: linear-gradient(155deg, rgba(241, 224, 189, 0.95), rgba(214, 181, 129, 0.92));
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 10px 45px rgba(26, 14, 7, 0.45);
+            border: 2px solid rgba(108, 70, 39, 0.78);
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-title {
+            color: #4f2e18;
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 1px 0 rgba(255, 244, 217, 0.7);
+            letter-spacing: 4px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(255, 248, 233, 0.74);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            min-height: 400px;
+            border: 1px solid rgba(132, 95, 58, 0.35);
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.user {
+            text-align: right;
+        }
+        
+        .message-bubble {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+            color: #fef8ef;
+            text-shadow: none;
+        }
+        
+        .message.user .message-bubble {
+            background: rgba(140, 74, 44, 0.85);
+            border: 1px solid rgba(101, 53, 31, 0.92);
+        }
+        
+        .message.ai .message-bubble {
+            background: rgba(82, 52, 33, 0.82);
+            border: 1px solid rgba(116, 75, 47, 0.82);
+        }
+        
+        .message-label {
+            font-size: 12px;
+            color: rgba(84, 50, 26, 0.72);
+            margin-bottom: 5px;
+        }
+        
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(255, 246, 224, 0.9);
+            border: 2px solid rgba(132, 95, 58, 0.45);
+            border-radius: 25px;
+            color: #4f2f1b;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .chat-input::placeholder {
+            color: rgba(84, 50, 26, 0.5);
+        }
+        
+        .send-btn {
+            padding: 15px 30px;
+            background: linear-gradient(180deg, rgba(194, 79, 57, 0.95), rgba(157, 52, 35, 0.92));
+            border: 2px solid rgba(105, 26, 16, 0.9);
+            color: #fbe9cf;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .send-btn:hover {
+            background: linear-gradient(180deg, rgba(212, 92, 68, 0.98), rgba(173, 60, 42, 0.95));
+            transform: scale(1.05);
+        }
+        
+        .example-questions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .example-btn {
+            padding: 8px 15px;
+            background: rgba(247, 231, 199, 0.9);
+            border: 1px solid rgba(132, 95, 58, 0.5);
+            color: rgba(79, 46, 24, 0.86);
+            font-size: 14px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .example-btn:hover {
+            background: rgba(250, 238, 212, 0.98);
+            color: #4f2e18;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+        
+        .error-message {
+            background: rgba(255, 50, 50, 0.6) !important;
+            border: 1px solid rgba(255, 50, 50, 0.8) !important;
+        }
+        
+        .api-config-hint {
+            background: rgba(255, 200, 0, 0.3);
+            border: 1px solid rgba(255, 200, 0, 0.6);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="../assets/night-theme.css">
+</head>
+<body class="moonlit-night">
+    <div class="container">
+        <!-- 虚拟人物区域 -->
+        <div class="character-section">
+            <div class="character-avatar">
+            <img src="https://github.com/Viserune/cjhyy-web/releases/download/v1.0.0/swing.gif" alt="张若虚" class="avatar-image">
+                
+                <div class="character-title">张若虚</div>
+            </div>
+            <button class="ask-btn" id="askBtn">
+                <span class="ask-btn-hint">点击我，你可以向我提问5个问题哦！</span>
+                点击提问
+            </button>
+        </div>
+        
+        <!-- 对话区域 -->
+        <div class="chat-section hidden" id="chatSection">
+            <div class="chat-title">与张若虚对话</div>
+            <div class="api-config-hint" id="apiConfigHint" style="display: none;">
+                ⚠️ 请在代码中配置DeepSeek API密钥以启用AI对话功能
+            </div>
+            <div class="example-questions" id="exampleQuestions">
+                <button class="example-btn" data-question="您为什么会写下'人生代代无穷已'？">示例：您为什么会写下"人生代代无穷已"？</button>
+                <button class="example-btn" data-question="春江花月夜这首诗表达了什么情感？">春江花月夜表达了什么情感？</button>
+                <button class="example-btn" data-question="您是如何构思这首诗的？">您是如何构思这首诗的？</button>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="输入您的问题...">
+                <button class="send-btn" id="sendBtn">发送</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ============ DeepSeek API 配置 ============
+        // 从统一配置文件读取 API 密钥
+        const CFG_DEEPSEEK = (typeof APP_CONFIG !== 'undefined') ? APP_CONFIG.deepseek : { apiKey: '', apiUrl: '', model: '' };
+        const OPENAI_API_KEY = CFG_DEEPSEEK.apiKey || 'YOUR_DEEPSEEK_API_KEY_HERE';
+        const OPENAI_API_URL = CFG_DEEPSEEK.apiUrl || 'https://api.deepseek.com/v1/chat/completions';
+        const MODEL = CFG_DEEPSEEK.model || 'deepseek-chat';
+        
+        // 对话次数限制
+        const MAX_CONVERSATIONS = 5;
+        let conversationCount = 0;
+        
+        // 系统提示词：定义AI角色
+        const SYSTEM_PROMPT = `你是唐代著名诗人张若虚，创作了被誉为"孤篇压全唐"的名作《春江花月夜》。你性格温和、博学多才，对自然和人生有深刻的思考。
+
+请以张若虚的身份和第一人称回答问题，体现出：
+1. 唐代文人的典雅气质和谦逊态度
+2. 对《春江花月夜》创作背景和意境的深刻理解
+3. 对人生、时光、自然的哲理性思考
+4. 温和、睿智的谈吐风格
+
+回答要简洁优美，不超过150字，使用古雅而易懂的现代中文。`;
+        
+        // ============ DOM 元素 ============
+        const askBtn = document.getElementById('askBtn');
+        const chatSection = document.getElementById('chatSection');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const exampleQuestions = document.querySelectorAll('.example-btn');
+        const apiConfigHint = document.getElementById('apiConfigHint');
+        
+        // 对话历史记录（用于上下文连续性）
+        let conversationHistory = [
+            { role: 'system', content: SYSTEM_PROMPT }
+        ];
+        
+        // ============ 初始化 ============
+        // 检查API密钥是否配置
+        if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_DEEPSEEK_API_KEY_HERE') {
+            apiConfigHint.style.display = 'block';
+        }
+        
+        // ============ 事件监听 ============
+        // 点击提问按钮，显示对话区域
+        askBtn.addEventListener('click', () => {
+            chatSection.classList.remove('hidden');
+            askBtn.style.animation = 'none';
+        });
+        
+        // 示例问题点击
+        exampleQuestions.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const question = btn.dataset.question;
+                chatInput.value = question;
+                sendMessage();
+            });
+        });
+        
+        // 发送消息
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // ============ 核心功能函数 ============
+        async function sendMessage() {
+            const question = chatInput.value.trim();
+            if (!question) return;
+            
+            // 检查对话次数限制
+            if (conversationCount >= MAX_CONVERSATIONS) {
+                addMessage('ai', `您已达到本次对话的上限（${MAX_CONVERSATIONS}次）。感谢您的交流，期待下次再会。`, false, false);
+                chatInput.disabled = true;
+                sendBtn.disabled = true;
+                return;
+            }
+            
+            // 禁用输入
+            chatInput.disabled = true;
+            sendBtn.disabled = true;
+            
+            // 显示用户消息
+            addMessage('user', question);
+            chatInput.value = '';
+            
+            // 显示加载状态
+            const loadingId = addMessage('ai', '正在思考...', true);
+            
+            try {
+                // 调用OpenAI API
+                const answer = await callOpenAI(question);
+                
+                // 移除加载消息，显示真实回答
+                removeMessage(loadingId);
+                addMessage('ai', answer);
+                
+                // 增加对话计数
+                conversationCount++;
+                
+                // 检查是否达到上限
+                if (conversationCount >= MAX_CONVERSATIONS) {
+                    setTimeout(() => {
+                        addMessage('ai', `这是我们的第${conversationCount}次对话，已达上限。很高兴与您交流，期待下次相会。`, false, false);
+                        chatInput.disabled = true;
+                        sendBtn.disabled = true;
+                        
+                        // 通知主页面对话完成
+                        if (window.parent !== window) {
+                            window.parent.postMessage({
+                                type: 'chatLimitReached',
+                                page: 2
+                            }, '*');
+                            window.parent.postMessage({
+                                type: 'pageCompleted',
+                                page: 2
+                            }, '*');
+                        }
+                    }, 500);
+                } else {
+                    // 显示剩余次数提示
+                    const remaining = MAX_CONVERSATIONS - conversationCount;
+                    console.log(`剩余对话次数：${remaining}`);
+                }
+                
+            } catch (error) {
+                console.error('API调用错误:', error);
+                removeMessage(loadingId);
+                
+                // 显示错误提示
+                const errorMsg = error.message.includes('API key')
+                    ? '请配置有效的DeepSeek API密钥'
+                    : '抱歉，我暂时无法回答。请稍后再试。';
+                addMessage('ai', errorMsg, false, true);
+            }
+            
+            // 恢复输入（如果未达上限）
+            if (conversationCount < MAX_CONVERSATIONS) {
+                chatInput.disabled = false;
+                sendBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+        
+        // 调用DeepSeek API
+        async function callOpenAI(userMessage) {
+            // 检查API密钥
+            if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_DEEPSEEK_API_KEY_HERE') {
+                throw new Error('API key not configured');
+            }
+            
+            // 添加用户消息到历史
+            conversationHistory.push({
+                role: 'user',
+                content: userMessage
+            });
+            
+            // 调用API
+            const response = await fetch(OPENAI_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: conversationHistory,
+                    temperature: 0.8,
+                    max_tokens: 300
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'API请求失败');
+            }
+            
+            const data = await response.json();
+            const assistantMessage = data.choices[0].message.content;
+            
+            // 添加AI回答到历史
+            conversationHistory.push({
+                role: 'assistant',
+                content: assistantMessage
+            });
+            
+            // 限制历史记录长度（保留系统提示+最近10轮对话）
+            if (conversationHistory.length > 21) {
+                conversationHistory = [
+                    conversationHistory[0], // 保留系统提示
+                    ...conversationHistory.slice(-20) // 保留最近20条消息
+                ];
+            }
+            
+            return assistantMessage;
+        }
+        
+        // 添加消息到界面
+        function addMessage(type, text, isLoading = false, isError = false) {
+            const messageDiv = document.createElement('div');
+            const messageId = 'msg_' + Date.now();
+            messageDiv.id = messageId;
+            messageDiv.className = `message ${type}`;
+            
+            const label = document.createElement('div');
+            label.className = 'message-label';
+            label.textContent = type === 'user' ? '您' : '张若虚';
+            
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${isLoading ? 'loading' : ''} ${isError ? 'error-message' : ''}`;
+            bubble.textContent = text;
+            
+            messageDiv.appendChild(label);
+            messageDiv.appendChild(bubble);
+            chatMessages.appendChild(messageDiv);
+            
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return messageId;
+        }
+        
+        // 移除消息
+        function removeMessage(messageId) {
+            const msgElement = document.getElementById(messageId);
+            if (msgElement) {
+                msgElement.remove();
+            }
+        }
+    </script>
+</body>
+</html>

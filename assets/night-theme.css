@@ -1,0 +1,493 @@
+:root {
+    --moon-bg-1: #050b1b;
+    --moon-bg-2: #091835;
+    --moon-bg-3: #11284d;
+    --moon-text: #e8f1ff;
+    --moon-subtext: #b8c9eb;
+    --moon-border: rgba(168, 198, 245, 0.38);
+    --moon-panel: rgba(10, 24, 52, 0.82);
+    --moon-panel-strong: rgba(7, 18, 40, 0.9);
+    --moon-btn-1: #2f5ea8;
+    --moon-btn-2: #213f74;
+    --moon-accent: #8fc3ff;
+}
+
+body.moonlit-night {
+    font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif !important;
+    color: var(--moon-text) !important;
+    background-color: var(--moon-bg-1) !important;
+    font-size: 16px !important;
+    line-height: 1.6;
+}
+
+/* Slightly enlarge text globally for better readability in full-screen presentation. */
+body.moonlit-night p,
+body.moonlit-night span,
+body.moonlit-night li,
+body.moonlit-night label,
+body.moonlit-night .subtitle,
+body.moonlit-night .author,
+body.moonlit-night .start-subtitle,
+body.moonlit-night .start-hint,
+body.moonlit-night .click-hint,
+body.moonlit-night .poem-author,
+body.moonlit-night .poem-reading-tip,
+body.moonlit-night .hint,
+body.moonlit-night .status-msg,
+body.moonlit-night .limit-hint,
+body.moonlit-night .message-label,
+body.moonlit-night .result-label,
+body.moonlit-night .placeholder {
+    font-size: 1.08em !important;
+}
+
+body.moonlit-night button,
+body.moonlit-night input,
+body.moonlit-night textarea,
+body.moonlit-night select,
+body.moonlit-night .btn,
+body.moonlit-night .send-btn,
+body.moonlit-night .generate-btn,
+body.moonlit-night .ask-btn,
+body.moonlit-night .debug-btn,
+body.moonlit-night .complete-btn,
+body.moonlit-night .action-btn,
+body.moonlit-night .example-btn,
+body.moonlit-night .chat-input,
+body.moonlit-night .keyword-input {
+    font-size: 1.04em !important;
+}
+
+body.moonlit-night::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -2;
+    background:
+        radial-gradient(circle at 77% 15%, rgba(225, 241, 255, 0.92) 0%, rgba(197, 226, 255, 0.5) 7%, rgba(174, 214, 255, 0.25) 14%, rgba(174, 214, 255, 0.08) 26%, rgba(174, 214, 255, 0) 44%),
+        radial-gradient(circle at 74% 18%, rgba(210, 234, 255, 0.34) 0%, rgba(210, 234, 255, 0.12) 22%, rgba(210, 234, 255, 0) 46%),
+        radial-gradient(circle at 18% 10%, rgba(128, 170, 236, 0.2) 0%, rgba(128, 170, 236, 0) 32%),
+        linear-gradient(180deg, rgba(5, 12, 28, 0.85), rgba(6, 17, 38, 0.72)) !important;
+    animation: moonGlowPulse 9s ease-in-out infinite;
+}
+
+body.moonlit-night::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: -6%;
+    height: 42%;
+    pointer-events: none;
+    z-index: -1;
+    background:
+        linear-gradient(180deg, rgba(120, 169, 241, 0) 0%, rgba(120, 169, 241, 0.08) 34%, rgba(83, 132, 209, 0.14) 60%, rgba(40, 86, 166, 0.2) 100%),
+        repeating-linear-gradient(176deg, rgba(178, 211, 255, 0.13) 0px, rgba(178, 211, 255, 0.13) 2px, rgba(79, 129, 209, 0.07) 3px, rgba(79, 129, 209, 0.07) 7px);
+    filter: blur(0.4px);
+    animation: riverReflectionDrift 16s linear infinite;
+}
+
+@keyframes moonGlowPulse {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+}
+
+@keyframes riverReflectionDrift {
+    0% {
+        background-position: center 0, 0 0;
+        opacity: 0.82;
+    }
+    50% {
+        background-position: center 14px, 80px 18px;
+        opacity: 1;
+    }
+    100% {
+        background-position: center 0, 160px 34px;
+        opacity: 0.82;
+    }
+}
+
+body.moonlit-night .container,
+body.moonlit-night .section,
+body.moonlit-night .video-container,
+body.moonlit-night .chat-section,
+body.moonlit-night .character-avatar,
+body.moonlit-night .record-card,
+body.moonlit-night .result-card,
+body.moonlit-night .history-card,
+body.moonlit-night .poem-panel,
+body.moonlit-night .image-container,
+body.moonlit-night .zones-container,
+body.moonlit-night .start-container,
+body.moonlit-night .title-container,
+body.moonlit-night .main-interact-hint,
+body.moonlit-night .debug-panel,
+body.moonlit-night #message-box,
+body.moonlit-night .question-block,
+body.moonlit-night .result-box,
+body.moonlit-night .chat-messages {
+    background: linear-gradient(160deg, var(--moon-panel), var(--moon-panel-strong)) !important;
+    color: var(--moon-text) !important;
+    border: 1.5px solid var(--moon-border) !important;
+    box-shadow: 0 14px 38px rgba(2, 7, 20, 0.52) !important;
+}
+
+body.moonlit-night h1,
+body.moonlit-night h2,
+body.moonlit-night h3,
+body.moonlit-night .title,
+body.moonlit-night .start-title,
+body.moonlit-night .chat-title,
+body.moonlit-night .poem-title,
+body.moonlit-night .character-title,
+body.moonlit-night .question-title {
+    color: #f3f8ff !important;
+    text-shadow: 0 2px 10px rgba(128, 174, 245, 0.28) !important;
+}
+
+body.moonlit-night p,
+body.moonlit-night .subtitle,
+body.moonlit-night .author,
+body.moonlit-night .start-subtitle,
+body.moonlit-night .start-hint,
+body.moonlit-night .click-hint,
+body.moonlit-night .poem-author,
+body.moonlit-night .poem-reading-tip,
+body.moonlit-night .hint,
+body.moonlit-night .status-msg,
+body.moonlit-night .limit-hint,
+body.moonlit-night .message-label,
+body.moonlit-night .result-label,
+body.moonlit-night .placeholder {
+    color: var(--moon-subtext) !important;
+}
+
+body.moonlit-night .poem-divider {
+    border-top-color: rgba(150, 186, 241, 0.45) !important;
+}
+
+body.moonlit-night button,
+body.moonlit-night .send-btn,
+body.moonlit-night .generate-btn,
+body.moonlit-night .ask-btn,
+body.moonlit-night .debug-btn,
+body.moonlit-night .complete-btn,
+body.moonlit-night .action-btn,
+body.moonlit-night .btn,
+body.moonlit-night .example-btn {
+    background: linear-gradient(180deg, var(--moon-btn-1), var(--moon-btn-2)) !important;
+    color: #f2f7ff !important;
+    border: 1px solid rgba(150, 188, 245, 0.65) !important;
+    box-shadow: 0 6px 16px rgba(5, 14, 32, 0.45) !important;
+}
+
+body.moonlit-night button:hover,
+body.moonlit-night .send-btn:hover,
+body.moonlit-night .generate-btn:hover,
+body.moonlit-night .ask-btn:hover,
+body.moonlit-night .debug-btn:hover,
+body.moonlit-night .example-btn:hover {
+    background: linear-gradient(180deg, #3c74c7, #29528e) !important;
+}
+
+body.moonlit-night input,
+body.moonlit-night textarea,
+body.moonlit-night select,
+body.moonlit-night .chat-input,
+body.moonlit-night .keyword-input {
+    background: rgba(8, 20, 42, 0.78) !important;
+    color: #eef5ff !important;
+    border: 1px solid rgba(145, 181, 235, 0.58) !important;
+}
+
+body.moonlit-night input::placeholder,
+body.moonlit-night textarea::placeholder,
+body.moonlit-night .chat-input::placeholder,
+body.moonlit-night .keyword-input::placeholder {
+    color: rgba(197, 217, 245, 0.72) !important;
+}
+
+body.moonlit-night .drop-zone,
+body.moonlit-night .placeholder,
+body.moonlit-night .waveform-container,
+body.moonlit-night .score-bar-bg,
+body.moonlit-night .history-chip,
+body.moonlit-night .option-item {
+    background: rgba(9, 23, 48, 0.62) !important;
+    border-color: rgba(140, 178, 235, 0.48) !important;
+    color: #dbeaff !important;
+}
+
+body.moonlit-night .message.user .message-bubble {
+    background: rgba(63, 117, 201, 0.85) !important;
+    border-color: rgba(133, 184, 255, 0.7) !important;
+}
+
+body.moonlit-night .message.ai .message-bubble {
+    background: rgba(24, 52, 96, 0.88) !important;
+    border-color: rgba(122, 167, 235, 0.62) !important;
+}
+
+body.moonlit-night .status-dot.online {
+    background: var(--moon-accent) !important;
+}
+
+/* Responsive adaptation for mobile/tablet and mixed desktop sizes. */
+@media (max-width: 1366px) {
+    body.moonlit-night .container {
+        width: min(94vw, 1220px) !important;
+        gap: 24px !important;
+    }
+
+    body.moonlit-night .character-avatar {
+        width: min(32vw, 320px) !important;
+        height: min(50vw, 460px) !important;
+    }
+
+    body.moonlit-night .chat-section {
+        max-height: 84vh !important;
+    }
+
+    body.moonlit-night .image-container,
+    body.moonlit-night .zones-container {
+        gap: 16px !important;
+        padding: 24px !important;
+    }
+
+    body.moonlit-night .drop-zone {
+        width: min(220px, 100%) !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    body.moonlit-night {
+        font-size: 15px !important;
+        overflow-y: auto !important;
+    }
+
+    body.moonlit-night p,
+    body.moonlit-night span,
+    body.moonlit-night li,
+    body.moonlit-night label {
+        font-size: 1em !important;
+    }
+
+    body.moonlit-night .container,
+    body.moonlit-night .main-layout {
+        width: 94vw !important;
+        max-width: none !important;
+        gap: 18px !important;
+    }
+
+    body.moonlit-night .page-container,
+    body.moonlit-night .page,
+    body.moonlit-night .page iframe {
+        height: 100dvh !important;
+    }
+
+    body.moonlit-night .controls {
+        flex-wrap: wrap !important;
+        align-items: stretch !important;
+    }
+
+    body.moonlit-night .controls .input-group {
+        width: 100% !important;
+    }
+
+    body.moonlit-night .chat-messages {
+        min-height: 260px !important;
+        max-height: 45vh !important;
+    }
+
+    body.moonlit-night .image-container {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        grid-template-rows: auto !important;
+    }
+
+    body.moonlit-night .zones-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    body.moonlit-night .drop-zone,
+    body.moonlit-night .drag-item,
+    body.moonlit-night .placeholder {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 16 / 9;
+    }
+
+    body.moonlit-night .record-panel {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    body.moonlit-night {
+        font-size: 14px !important;
+        background-attachment: scroll !important;
+    }
+
+    body.moonlit-night .container,
+    body.moonlit-night .main-layout {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    body.moonlit-night .page-container,
+    body.moonlit-night .page,
+    body.moonlit-night .page iframe {
+        height: 100dvh !important;
+    }
+
+    body.moonlit-night .character-avatar {
+        width: min(88vw, 320px) !important;
+        height: min(122vw, 430px) !important;
+        margin: 0 auto !important;
+    }
+
+    body.moonlit-night .video-container,
+    body.moonlit-night .chat-section,
+    body.moonlit-night .section,
+    body.moonlit-night .poem-panel,
+    body.moonlit-night .record-card,
+    body.moonlit-night .result-card,
+    body.moonlit-night .history-card,
+    body.moonlit-night .title-container,
+    body.moonlit-night .start-container {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 16px !important;
+        border-radius: 12px !important;
+    }
+
+    body.moonlit-night h1,
+    body.moonlit-night .start-title {
+        font-size: clamp(1.8rem, 8vw, 2.4rem) !important;
+        letter-spacing: 0.16em !important;
+    }
+
+    body.moonlit-night .subtitle,
+    body.moonlit-night .author,
+    body.moonlit-night .start-subtitle,
+    body.moonlit-night .start-hint {
+        font-size: clamp(0.95rem, 4.2vw, 1.2rem) !important;
+        letter-spacing: 0.08em !important;
+    }
+
+    body.moonlit-night .input-area,
+    body.moonlit-night .action-row,
+    body.moonlit-night .debug-controls {
+        flex-wrap: wrap !important;
+    }
+
+    body.moonlit-night .chat-input,
+    body.moonlit-night .send-btn,
+    body.moonlit-night .ask-btn,
+    body.moonlit-night .btn,
+    body.moonlit-night .complete-btn,
+    body.moonlit-night .action-btn,
+    body.moonlit-night .example-btn {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    body.moonlit-night .chat-messages {
+        min-height: 220px !important;
+        max-height: 40vh !important;
+        padding: 12px !important;
+    }
+
+    body.moonlit-night .image-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        padding: 12px !important;
+    }
+
+    body.moonlit-night .zones-container {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        padding: 12px !important;
+    }
+
+    body.moonlit-night .drop-zone-wrapper {
+        width: 100% !important;
+    }
+
+    body.moonlit-night #submit-btn {
+        width: 124px !important;
+        height: 58px !important;
+    }
+
+    body.moonlit-night #message-box {
+        min-width: 0 !important;
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 1rem !important;
+    }
+
+    body.moonlit-night .result-box {
+        min-height: 280px !important;
+        padding: 12px !important;
+    }
+
+    body.moonlit-night #map-box {
+        min-height: 360px !important;
+    }
+
+    body.moonlit-night #map-viewport {
+        padding: 48px !important;
+    }
+
+    body.moonlit-night .zoom-controls {
+        top: 10px !important;
+        right: 10px !important;
+    }
+
+    body.moonlit-night .main-interact-overlay {
+        right: 14px !important;
+        bottom: 18px !important;
+    }
+
+    body.moonlit-night .main-interact-hint {
+        padding: 12px 14px !important;
+        border-radius: 10px !important;
+    }
+
+    body.moonlit-night .arrow {
+        font-size: 34px !important;
+        margin-bottom: 2px !important;
+    }
+
+    body.moonlit-night .main-interact-hint p {
+        font-size: 14px !important;
+        letter-spacing: 1px !important;
+        margin: 2px 0 !important;
+    }
+
+    body.moonlit-night .debug-panel {
+        top: 8px !important;
+        right: 8px !important;
+        left: 8px !important;
+        padding: 10px !important;
+        max-height: 44vh !important;
+        overflow: auto !important;
+    }
+
+    body.moonlit-night .debug-btn {
+        flex: 1 1 calc(33.333% - 6px) !important;
+        padding: 6px 8px !important;
+    }
+}

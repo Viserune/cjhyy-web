@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>春江花月夜 - 互动学习</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif;
+            overflow: hidden;
+            background: #1f140d;
+        }
+        
+        .page-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .page.active {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 10;
+        }
+        
+        .page iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* 交互提示层 */
+        .main-interact-overlay {
+            position: fixed;
+            bottom: 80px;
+            right: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        
+        .main-interact-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .main-interact-hint {
+            text-align: center;
+            color: #4a2d1b;
+            text-shadow: 0 1px 0 rgba(255, 244, 217, 0.6);
+            animation: pulse 1.5s infinite;
+            background:
+                linear-gradient(145deg, rgba(243, 228, 193, 0.96), rgba(224, 197, 147, 0.94)),
+                repeating-linear-gradient(0deg, rgba(94, 63, 35, 0.06) 0px, rgba(94, 63, 35, 0.06) 1px, transparent 1px, transparent 4px);
+            padding: 20px 30px;
+            border-radius: 16px;
+            border: 2px solid rgba(105, 68, 39, 0.55);
+            box-shadow:
+                0 10px 28px rgba(46, 28, 15, 0.34),
+                inset 0 0 0 1px rgba(255, 242, 212, 0.75);
+        }
+        
+        .arrow {
+            font-size: 80px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            line-height: 1;
+            color: #7b2f1a;
+        }
+        
+        .main-interact-hint p {
+            margin: 10px 0;
+            font-size: 20px;
+            letter-spacing: 2px;
+            color: #5b3922;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* 加载动画 */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f2d9ab;
+            font-size: 24px;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            letter-spacing: 3px;
+            text-shadow: 0 3px 10px rgba(20, 11, 6, 0.65);
+        }
+        
+        .loading.show {
+            opacity: 1;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        .night-switch-stars,
+        .night-switch-fog {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1500;
+        }
+
+        .night-switch-stars {
+            background:
+                radial-gradient(circle at 18% 22%, rgba(231, 242, 255, 0.88) 0 1px, transparent 1.4px),
+                radial-gradient(circle at 32% 48%, rgba(201, 225, 255, 0.75) 0 1px, transparent 1.4px),
+                radial-gradient(circle at 67% 26%, rgba(231, 242, 255, 0.86) 0 1px, transparent 1.5px),
+                radial-gradient(circle at 84% 44%, rgba(210, 229, 255, 0.72) 0 1px, transparent 1.5px),
+                radial-gradient(circle at 56% 66%, rgba(188, 215, 255, 0.64) 0 1px, transparent 1.6px);
+        }
+
+        .night-switch-fog {
+            background:
+                radial-gradient(ellipse at 20% 76%, rgba(171, 207, 255, 0.24) 0%, rgba(171, 207, 255, 0) 52%),
+                radial-gradient(ellipse at 80% 82%, rgba(147, 191, 255, 0.21) 0%, rgba(147, 191, 255, 0) 55%),
+                linear-gradient(180deg, rgba(128, 170, 236, 0) 48%, rgba(128, 170, 236, 0.14) 100%);
+        }
+
+        .night-switch-stars.show {
+            animation: pageStarsTwinkle 0.95s ease-out;
+        }
+
+        .night-switch-fog.show {
+            animation: pageFogSweep 0.95s ease-out;
+        }
+
+        @keyframes pageStarsTwinkle {
+            0% { opacity: 0; transform: scale(0.995); }
+            35% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.01); }
+        }
+
+        @keyframes pageFogSweep {
+            0% { opacity: 0; transform: translateY(18px); }
+            45% { opacity: 0.42; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-12px); }
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        /* Debug模式 */
+        .debug-panel {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background:
+                linear-gradient(160deg, rgba(77, 43, 27, 0.95), rgba(58, 31, 19, 0.93)),
+                repeating-linear-gradient(90deg, rgba(255, 223, 170, 0.05) 0px, rgba(255, 223, 170, 0.05) 1px, transparent 1px, transparent 5px);
+            color: #f1dcc0;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 2000;
+            display: none;
+            border: 2px solid rgba(213, 177, 126, 0.8);
+            box-shadow: 0 10px 24px rgba(16, 9, 4, 0.5);
+        }
+        
+        .debug-panel.show {
+            display: block;
+        }
+        
+        .debug-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .debug-btn {
+            padding: 5px 15px;
+            background: linear-gradient(180deg, rgba(240, 218, 179, 0.95), rgba(214, 180, 128, 0.92));
+            border: 1px solid rgba(125, 84, 45, 0.85);
+            color: #4f301b;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        
+        .debug-btn:hover {
+            background: linear-gradient(180deg, rgba(250, 233, 199, 0.96), rgba(224, 194, 144, 0.94));
+        }
+        
+        .debug-btn.active {
+            background: linear-gradient(180deg, rgba(195, 71, 51, 0.95), rgba(155, 49, 33, 0.92));
+            color: #fbe9cf;
+            border-color: rgba(93, 20, 12, 0.9);
+        }
+
+        .audio-fab {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(180deg, rgba(240, 218, 179, 0.95), rgba(214, 180, 128, 0.92));
+            border: 1px solid rgba(125, 84, 45, 0.85);
+            box-shadow: 0 10px 22px rgba(16, 9, 4, 0.28);
+            color: #4f301b;
+            font-size: 12px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            z-index: 2000;
+        }
+
+        .audio-fab.active {
+            background: linear-gradient(180deg, rgba(195, 71, 51, 0.95), rgba(155, 49, 33, 0.92));
+            color: #fbe9cf;
+            border-color: rgba(93, 20, 12, 0.9);
+        }
+
+        .audio-panel {
+            position: fixed;
+            top: 88px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background:
+                linear-gradient(160deg, rgba(250, 238, 214, 0.96), rgba(224, 194, 144, 0.94)),
+                repeating-linear-gradient(90deg, rgba(95, 64, 36, 0.06) 0px, rgba(95, 64, 36, 0.06) 1px, transparent 1px, transparent 5px);
+            border-radius: 999px;
+            border: 1px solid rgba(109, 74, 43, 0.6);
+            box-shadow: 0 10px 22px rgba(16, 9, 4, 0.28);
+            color: #4f301b;
+            font-size: 12px;
+            opacity: 0;
+            transform: translateY(-6px);
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 2000;
+        }
+
+        .audio-panel.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .audio-icon-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(180deg, rgba(240, 218, 179, 0.95), rgba(214, 180, 128, 0.92));
+            border: 1px solid rgba(125, 84, 45, 0.85);
+            color: #4f301b;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .audio-icon-btn.active {
+            background: linear-gradient(180deg, rgba(195, 71, 51, 0.95), rgba(155, 49, 33, 0.92));
+            color: #fbe9cf;
+            border-color: rgba(93, 20, 12, 0.9);
+        }
+
+        .audio-slider {
+            width: 120px;
+        }
+
+        /* 结尾反馈二维码 */
+        .feedback-panel {
+            position: fixed;
+            right: 32px;
+            bottom: 120px;
+            width: 220px;
+            padding: 16px 16px 14px;
+            background:
+                linear-gradient(160deg, rgba(250, 238, 214, 0.98), rgba(226, 199, 155, 0.96)),
+                repeating-linear-gradient(0deg, rgba(95, 64, 36, 0.06) 0px, rgba(95, 64, 36, 0.06) 1px, transparent 1px, transparent 4px);
+            border-radius: 16px;
+            border: 2px solid rgba(109, 74, 43, 0.6);
+            box-shadow: 0 16px 36px rgba(22, 12, 6, 0.45);
+            color: #4b2e1b;
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 1800;
+            text-align: center;
+        }
+
+        .feedback-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        .feedback-title {
+            font-size: 18px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            color: #6b3a1f;
+            font-weight: 700;
+        }
+
+        .feedback-panel img {
+            width: 168px;
+            height: 168px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid rgba(107, 58, 31, 0.35);
+            background: #fff7e6;
+            box-shadow: inset 0 0 0 1px rgba(255, 248, 232, 0.8);
+        }
+
+        .feedback-close {
+            margin-top: 10px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #7a4a2a;
+            opacity: 0.8;
+        }
+
+        .feedback-close:hover {
+            opacity: 1;
+        }
+
+        .feedback-download {
+            margin-top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 999px;
+            border: 1px solid rgba(107, 58, 31, 0.45);
+            color: #5e321c;
+            text-decoration: none;
+            background: rgba(255, 248, 232, 0.85);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .feedback-download:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(26, 14, 7, 0.2);
+        }
+    </style>
+    <link rel="stylesheet" href="assets/night-theme.css">
+</head>
+<body class="moonlit-night">
+    <!-- Debug面板 -->
+    <div class="debug-panel" id="debugPanel">
+        <div><strong>调试模式</strong> (按D关闭)</div>
+        <div style="font-size: 12px; margin-top: 5px;">当前: 第<span id="debugCurrentPage">1</span>页</div>
+        <div class="debug-controls">
+            <button class="debug-btn" onclick="debugGoToPage(1)">视频</button>
+            <button class="debug-btn" onclick="debugGoToPage(2)">对话</button>
+            <button class="debug-btn" onclick="debugGoToPage(3)">介绍</button>
+            <button class="debug-btn" onclick="debugGoToPage(4)">游戏</button>
+            <button class="debug-btn" onclick="debugGoToPage(5)">情绪</button>
+            <button class="debug-btn" onclick="debugGoToPage(6)">创作</button>
+        </div>
+        <div class="debug-controls">
+            <button class="debug-btn" onclick="debugGoToPage(7)">导图</button>
+            <button class="debug-btn" onclick="debugGoToPage(8)">问答</button>
+        </div>
+        <div class="debug-controls">
+            <button class="debug-btn" onclick="debugCompleteAll()">全部完成</button>
+            <button class="debug-btn" onclick="debugResetAll()">重置</button>
+        </div>
+    </div>
+
+    <div class="audio-fab" id="audioFab" role="button" aria-label="音量控制">🔊</div>
+    <div class="audio-panel" id="audioPanel" aria-hidden="true">
+        <input class="audio-slider" id="volumeSlider" type="range" min="0" max="100" value="60" aria-label="背景音乐音量">
+        <button class="audio-icon-btn" id="muteButton" type="button" aria-label="静音">🔈</button>
+    </div>
+    <div class="page-container">
+        <!-- 第一页：视频介绍 -->
+        <div class="page active" id="page1">
+            <iframe src="pages/video.html" id="iframe1"></iframe>
+        </div>
+        
+        <!-- 第二页：对话交流 -->
+        <div class="page" id="page2">
+            <iframe src="pages/chat.html" id="iframe2"></iframe>
+        </div>
+        
+        <!-- 第三页：介绍视频 -->
+        <div class="page" id="page3">
+            <iframe src="pages/introduction.html" id="iframe3"></iframe>
+        </div>
+        
+        <!-- 第四页：拖拽游戏 -->
+        <div class="page" id="page4">
+            <iframe src="pages/index.html" id="iframe4"></iframe>
+        </div>
+
+        <!-- 第五页：情绪感知 -->
+        <div class="page" id="page5">
+            <iframe src="pages/emotion.html" id="iframe5"></iframe>
+        </div>
+
+        <!-- 第六页：诗句再创作 -->
+        <div class="page" id="page6">
+            <iframe src="pages/poetry.html" id="iframe6"></iframe>
+        </div>
+
+        <!-- 第七页：思维导图与AI作画 -->
+        <div class="page" id="page7">
+            <iframe src="pages/mindmap.html" id="iframe7"></iframe>
+        </div>
+
+        <!-- 第八页：诗意问答 -->
+        <div class="page" id="page8">
+            <iframe src="pages/quiz.html" id="iframe8"></iframe>
+        </div>
+    </div>
+
+    <!-- 交互提示 -->
+    <div class="main-interact-overlay" id="mainInteractOverlay">
+        <div class="main-interact-hint">
+            <div class="arrow">》</div>
+            <p>点击进入下一环节</p>
+        </div>
+    </div>
+    
+    <!-- 加载提示 -->
+    <div class="loading" id="loading">正在加载</div>
+
+    <!-- 切页氛围动效 -->
+    <div class="night-switch-stars" id="nightSwitchStars" aria-hidden="true"></div>
+    <div class="night-switch-fog" id="nightSwitchFog" aria-hidden="true"></div>
+
+    <!-- 结尾反馈二维码 -->
+    <div class="feedback-panel" id="feedbackPanel" aria-live="polite">
+        <div class="feedback-title">向我们反馈</div>
+        <img src="assets/feedback.png" alt="反馈二维码">
+        <a class="feedback-download" href="assets/%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%BA%90%E5%8C%85.pdf" download>
+            下载学习资源包
+        </a>
+        <div class="feedback-close" id="feedbackClose">点击关闭</div>
+    </div>
+
+    <audio id="bgm" src="assets/BGM/bgm.mp3" preload="auto" loop></audio>
+    
+    <script>
+        let currentPage = 1;
+        const totalPages = 8;
+        const HEARTBEAT_INTERVAL_MS = 10000;
+        const pages = document.querySelectorAll('.page');
+        const mainInteractOverlay = document.getElementById('mainInteractOverlay');
+        const loading = document.getElementById('loading');
+        const nightSwitchStars = document.getElementById('nightSwitchStars');
+        const nightSwitchFog = document.getElementById('nightSwitchFog');
+        const debugPanel = document.getElementById('debugPanel');
+        const debugCurrentPageSpan = document.getElementById('debugCurrentPage');
+        const feedbackPanel = document.getElementById('feedbackPanel');
+        const feedbackClose = document.getElementById('feedbackClose');
+        const bgm = document.getElementById('bgm');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const muteButton = document.getElementById('muteButton');
+        const audioFab = document.getElementById('audioFab');
+        const audioPanel = document.getElementById('audioPanel');
+        const iframes = {
+            1: document.getElementById('iframe1'),
+            2: document.getElementById('iframe2'),
+            3: document.getElementById('iframe3'),
+            4: document.getElementById('iframe4'),
+            5: document.getElementById('iframe5'),
+            6: document.getElementById('iframe6'),
+            7: document.getElementById('iframe7'),
+            8: document.getElementById('iframe8')
+        };
+        const appCacheBuster = new URLSearchParams(window.location.search).get('v') || Date.now().toString();
+
+        function withCacheBuster(url) {
+            try {
+                const parsed = new URL(url, window.location.href);
+                parsed.searchParams.set('v', appCacheBuster);
+                return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+            } catch (e) {
+                const sep = url.includes('?') ? '&' : '?';
+                return `${url}${sep}v=${encodeURIComponent(appCacheBuster)}`;
+            }
+        }
+
+        // 统一给子页面 URL 加版本参数，避免命中旧缓存。
+        Object.values(iframes).forEach((iframe) => {
+            if (!iframe) return;
+            const rawSrc = iframe.getAttribute('src');
+            if (!rawSrc) return;
+            iframe.setAttribute('src', withCacheBuster(rawSrc));
+        });
+        
+        // Debug模式
+        let debugMode = false;
+        let switchFxTimer = null;
+
+        function triggerPageSwitchAtmosphere() {
+            if (!nightSwitchStars || !nightSwitchFog) {
+                return;
+            }
+            nightSwitchStars.classList.remove('show');
+            nightSwitchFog.classList.remove('show');
+            // Force reflow to restart animation when switching quickly.
+            void nightSwitchStars.offsetWidth;
+            nightSwitchStars.classList.add('show');
+            nightSwitchFog.classList.add('show');
+
+            if (switchFxTimer) {
+                clearTimeout(switchFxTimer);
+            }
+            switchFxTimer = setTimeout(() => {
+                nightSwitchStars.classList.remove('show');
+                nightSwitchFog.classList.remove('show');
+            }, 980);
+        }
+        
+        // 页面完成状态
+        const pageCompleted = {
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+            5: false,
+            6: false,
+            7: false,
+            8: false,
+            9: false
+        };
+        
+        // 监听来自iframe的消息
+        window.addEventListener('message', (event) => {
+            // 检查消息来源
+            if (event.data && event.data.type === 'pageCompleted') {
+                const pageNum = event.data.page;
+                pageCompleted[pageNum] = true;
+                console.log(`第${pageNum}页已完成`);
+                
+                // 如果是当前页面完成，显示交互提示
+                if (pageNum === currentPage && currentPage < totalPages) {
+                    showInteractHint();
+                }
+            }
+        });
+
+        // 视频页点击“开始学习”并真正进入视频后，才显示演示用的下一环节按钮。
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'videoStarted' && currentPage === 1) {
+                showInteractHint();
+            }
+        });
+        
+        // 显示交互提示
+        function showInteractHint() {
+            mainInteractOverlay.classList.add('show');
+        }
+
+        function showInteractHintIfCurrent(pageNum, delayMs = 0) {
+            if (delayMs <= 0) {
+                if (currentPage === pageNum) {
+                    showInteractHint();
+                }
+                return;
+            }
+            setTimeout(() => {
+                if (currentPage === pageNum) {
+                    showInteractHint();
+                }
+            }, delayMs);
+        }
+        
+        // 隐藏交互提示
+        function hideInteractHint() {
+            mainInteractOverlay.classList.remove('show');
+        }
+        
+        // 切换页面
+        function goToPage(pageNum) {
+            if (pageNum < 1 || pageNum > totalPages || pageNum === currentPage) {
+                return;
+            }
+            
+            console.log(`切换页面: ${currentPage} -> ${pageNum}`);
+            
+            // 显示加载
+            loading.classList.add('show');
+            hideInteractHint();
+            triggerPageSwitchAtmosphere();
+            
+            // 停止当前页面的媒体播放
+            try {
+                const currentIframe = iframes[currentPage];
+                if (currentIframe && currentIframe.contentWindow) {
+                    currentIframe.contentWindow.postMessage({ type: 'pause' }, '*');
+                    console.log(`已向第${currentPage}页发送暂停命令`);
+                }
+            } catch (e) {
+                console.log('无法暂停当前页面媒体:', e);
+            }
+            
+            setTimeout(() => {
+                // 隐藏当前页
+                pages[currentPage - 1].classList.remove('active');
+                
+                // 显示目标页
+                pages[pageNum - 1].classList.add('active');
+                
+                currentPage = pageNum;
+
+                // 演示模式：第 1～7 页始终显示“进入下一环节”按钮，便于现场展示。
+                if (currentPage < totalPages) {
+                    showInteractHint();
+                } else {
+                    hideInteractHint();
+                }
+                
+                // 更新debug面板
+                if (debugMode) {
+                    debugCurrentPageSpan.textContent = currentPage;
+                }
+                
+                // 隐藏加载
+                loading.classList.remove('show');
+                
+                console.log(`当前在第${currentPage}页，完成状态:`, pageCompleted[currentPage]);
+                
+                // 如果新页面已经完成，显示提示
+                if (pageCompleted[currentPage] && currentPage < totalPages) {
+                    showInteractHintIfCurrent(currentPage, 500);
+                }
+            }, 300);
+        }
+        
+        // 点击交互提示切换到下一页
+        mainInteractOverlay.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                goToPage(currentPage + 1);
+            }
+        });
+        
+        // 为第1页（video.html）设置特殊监听
+        // video.html播放完所有5个视频后才算完成
+        let videoCompletedCount = 0;
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'videoSegmentCompleted') {
+                videoCompletedCount++;
+                console.log(`视频片段完成: ${videoCompletedCount}/5`);
+                
+                // 所有5个视频播放完成
+                if (videoCompletedCount >= 5) {
+                    pageCompleted[1] = true;
+                    if (currentPage === 1) {
+                        showInteractHint();
+                    }
+                }
+            }
+        });
+        
+        // 为第2页（chat.html）设置特殊监听
+        // 达到对话上限后完成
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'chatLimitReached') {
+                pageCompleted[2] = true;
+                showInteractHintIfCurrent(2, 1000);
+            }
+        });
+        
+        // 为第3页（introduction.html）- 视频播放完成
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'introVideoEnded') {
+                pageCompleted[3] = true;
+                if (currentPage === 3) {
+                    showInteractHint();
+                }
+            }
+        });
+        
+        // 为第4页（index.html）- 游戏完成
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'gameCompleted') {
+                pageCompleted[4] = true;
+                showInteractHintIfCurrent(4, 500);
+            }
+        });
+
+        // 为第5页（emotion.html）- 情绪感知完成
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'pageCompleted' && event.data.page === 5) {
+                pageCompleted[5] = true;
+                // 显示进入下一环节提示
+                showInteractHintIfCurrent(5, 500);
+            }
+        });
+
+        // 为第6页（poetry.html）- 诗句创作完成
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'pageCompleted' && event.data.page === 6) {
+                pageCompleted[6] = true;
+                // 显示进入下一环节提示
+                showInteractHintIfCurrent(6, 500);
+            }
+        });
+
+        // 为第7页（mindmap.html）- 导图与作画完成
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'pageCompleted' && event.data.page === 7) {
+                pageCompleted[7] = true;
+                // 导图完成后可进入问答页
+                showInteractHintIfCurrent(7, 500);
+            }
+        });
+
+        // 为第8页（quiz.html）- 问答完成
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'pageCompleted' && event.data.page === 8) {
+                pageCompleted[8] = true;
+                if (currentPage === 8) {
+                    setTimeout(() => {
+                        alert('恭喜完成所有学习环节！感谢您体验《春江花月夜》互动学习。');
+                    }, 800);
+                    setTimeout(() => {
+                        if (feedbackPanel) {
+                            feedbackPanel.classList.add('show');
+                        }
+                    }, 1200);
+                }
+            }
+        });
+
+        if (feedbackClose && feedbackPanel) {
+            feedbackClose.addEventListener('click', () => {
+                feedbackPanel.classList.remove('show');
+            });
+        }
+
+        function tryPlayBgm() {
+            if (!bgm) return;
+            const playPromise = bgm.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => {});
+            }
+        }
+
+        function updateMuteButton() {
+            if (!muteButton || !bgm) return;
+            const isMuted = bgm.muted || bgm.volume === 0;
+            muteButton.textContent = isMuted ? '🔇' : '🔊';
+            muteButton.setAttribute('aria-label', isMuted ? '取消静音' : '静音');
+            muteButton.classList.toggle('active', isMuted);
+        }
+
+        if (bgm) {
+            bgm.volume = 0.1;
+            bgm.muted = false;
+        }
+
+        if (volumeSlider && bgm) {
+            volumeSlider.value = Math.round((bgm.volume || 0) * 100).toString();
+            volumeSlider.addEventListener('input', () => {
+                const value = Number(volumeSlider.value) / 100;
+                bgm.volume = value;
+                if (value > 0 && bgm.muted) {
+                    bgm.muted = false;
+                }
+                updateMuteButton();
+            });
+        }
+
+        if (muteButton && bgm) {
+            muteButton.addEventListener('click', () => {
+                bgm.muted = !bgm.muted;
+                updateMuteButton();
+            });
+        }
+
+        if (audioFab && audioPanel) {
+            audioFab.addEventListener('click', () => {
+                const isOpen = audioPanel.classList.toggle('show');
+                audioPanel.setAttribute('aria-hidden', (!isOpen).toString());
+                audioFab.classList.toggle('active', isOpen);
+            });
+        }
+
+        updateMuteButton();
+
+        tryPlayBgm();
+        ['click', 'keydown', 'touchstart'].forEach((eventName) => {
+            document.addEventListener(eventName, tryPlayBgm, { once: true });
+        });
+
+        
+        
+        // ============ Debug功能 ============
+        function toggleDebugMode() {
+            debugMode = !debugMode;
+            debugPanel.classList.toggle('show', debugMode);
+            debugCurrentPageSpan.textContent = currentPage;
+            console.log('Debug模式:', debugMode ? '开启' : '关闭');
+        }
+
+        function bindDebugShortcutForDocument(targetDoc) {
+            if (!targetDoc || targetDoc.__debugShortcutBound) {
+                return;
+            }
+            targetDoc.addEventListener('keydown', (e) => {
+                if (e.key === 'd' || e.key === 'D') {
+                    toggleDebugMode();
+                }
+            });
+            targetDoc.__debugShortcutBound = true;
+        }
+
+        // 主页面按 D 可以切换 debug
+        bindDebugShortcutForDocument(document);
+
+        // 为每个 iframe 绑定 D 快捷键，保证焦点在任意页面位置都可开关 debug
+        Object.values(iframes).forEach((iframe) => {
+            if (!iframe) return;
+            iframe.addEventListener('load', () => {
+                try {
+                    bindDebugShortcutForDocument(iframe.contentDocument);
+                } catch (e) {
+                    console.log('绑定 iframe debug 快捷键失败:', e);
+                }
+            });
+
+            // 兼容已加载完成的 iframe
+            try {
+                if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                    bindDebugShortcutForDocument(iframe.contentDocument);
+                }
+            } catch (e) {
+                // 无需打断主流程
+            }
+        });
+        
+        // Debug: 直接跳转到指定页面
+        function debugGoToPage(pageNum) {
+            goToPage(pageNum);
+        }
+        
+        // Debug: 标记所有页面为完成
+        function debugCompleteAll() {
+            for (let i = 1; i <= totalPages; i++) {
+                pageCompleted[i] = true;
+            }
+            console.log('所有页面已标记为完成');
+            alert('所有页面已标记为完成！现在可以自由切换。');
+            if (currentPage < totalPages) showInteractHint();
+        }
+        
+        // Debug: 重置所有完成状态
+        function debugResetAll() {
+            for (let i = 1; i <= totalPages; i++) {
+                pageCompleted[i] = false;
+            }
+            videoCompletedCount = 0;
+            hideInteractHint();
+            console.log('所有状态已重置');
+            alert('所有完成状态已重置！');
+        }
+
+        async function sendHeartbeat() {
+            try {
+                await fetch('/__heartbeat__', {
+                    method: 'POST',
+                    cache: 'no-store',
+                    keepalive: true
+                });
+            } catch (e) {
+                // 程序正在退出或网络中断时无需打扰用户
+            }
+        }
+
+        // 页面活跃期间持续上报心跳，关闭浏览器后将停止上报。
+        sendHeartbeat();
+        setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1320 @@
+<!--/* AI辅助生成:使用deepseek-R1/deepseek-v3 ,2026-2 */-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情绪感知 · 春江花月夜</title>
+    <link rel="stylesheet" href="../assets/night-theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif;
+            min-height: 100vh;
+            background-image: url('../assets/images/background3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            overflow-x: hidden;
+            color: #4f2f1b;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(29, 16, 8, 0.56), rgba(58, 32, 18, 0.36));
+            z-index: 0;
+        }
+
+        /* ── 顶部标题 ─────────────────────────────── */
+        .page-header {
+            position: relative; z-index: 10;
+            text-align: center;
+            padding: 28px 20px 16px;
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            letter-spacing: 6px;
+            color: #f2dfbe;
+            text-shadow: 0 3px 10px rgba(20, 11, 6, 0.65);
+            font-family: 'KaiTi', serif;
+        }
+
+        .page-header p {
+            margin-top: 6px;
+            font-size: 0.95rem;
+            color: rgba(242, 223, 190, 0.85);
+            letter-spacing: 2px;
+        }
+
+        /* ── 主体布局 ─────────────────────────────── */
+        .main-layout {
+            position: relative; z-index: 10;
+            display: flex;
+            gap: 24px;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 0 24px 40px;
+            align-items: flex-start;
+        }
+
+        /* ── 诗词面板 ─────────────────────────────── */
+        .poem-panel {
+            flex: 1;
+            min-width: 0;
+            background: linear-gradient(155deg, rgba(241, 224, 189, 0.95), rgba(214, 181, 129, 0.92));
+            border: 2px solid rgba(108, 70, 39, 0.72);
+            border-radius: 18px;
+            padding: 28px 32px;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(26, 14, 7, 0.35);
+        }
+
+        .poem-panel::-webkit-scrollbar { width: 5px; }
+        .poem-panel::-webkit-scrollbar-thumb { background: rgba(120, 80, 46, 0.35); border-radius: 3px; }
+
+        .poem-meta {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .poem-title {
+            font-size: 1.7rem;
+            letter-spacing: 5px;
+            font-family: 'KaiTi', serif;
+            color: #5a351f;
+            text-shadow: 0 1px 0 rgba(255, 244, 217, 0.65);
+        }
+
+        .poem-author {
+            font-size: 0.92rem;
+            color: rgba(95, 61, 35, 0.82);
+            margin-top: 6px;
+            letter-spacing: 2px;
+        }
+
+        .poem-divider {
+            border: none;
+            border-top: 1px solid rgba(120, 80, 46, 0.35);
+            margin: 16px 0;
+        }
+
+        .poem-body {
+            font-family: 'KaiTi', serif;
+            font-size: 1.13rem;
+            line-height: 2.4;
+            letter-spacing: 2px;
+            color: rgba(72, 42, 23, 0.95);
+        }
+
+        .poem-body p {
+            margin-bottom: 4px;
+        }
+
+        .poem-body .stanza {
+            margin-bottom: 18px;
+        }
+
+        .poem-reading-tip {
+            margin-top: 20px;
+            padding: 12px 16px;
+            background: rgba(247, 235, 208, 0.72);
+            border-left: 3px solid rgba(120, 80, 46, 0.72);
+            border-radius: 6px;
+            font-size: 0.88rem;
+            color: rgba(92, 58, 33, 0.88);
+            line-height: 1.8;
+        }
+
+        /* ── 录音面板 ─────────────────────────────── */
+        .record-panel {
+            width: 380px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* 录音控制卡片 */
+        .record-card {
+            background: linear-gradient(155deg, rgba(241, 224, 189, 0.95), rgba(214, 181, 129, 0.92));
+            border: 2px solid rgba(108, 70, 39, 0.72);
+            border-radius: 18px;
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(26, 14, 7, 0.35);
+        }
+
+        .record-card h3 {
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+            color: rgba(83, 49, 26, 0.95);
+        }
+
+        .record-card .subtitle {
+            font-size: 0.82rem;
+            color: rgba(95, 61, 35, 0.78);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        /* 波形可视化 */
+        .waveform-container {
+            height: 60px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #waveformCanvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .waveform-idle-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            pointer-events: none;
+        }
+
+        /* 录音按钮 */
+        .record-btn-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .record-btn {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.4);
+            background: rgba(220, 70, 70, 0.15);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.3s;
+            position: relative;
+            outline: none;
+        }
+
+        .record-btn:hover {
+            background: rgba(220, 70, 70, 0.3);
+            border-color: rgba(255,100,100,0.7);
+            transform: scale(1.05);
+        }
+
+        .record-btn.recording {
+            background: rgba(220, 50, 50, 0.7);
+            border-color: rgba(255,80,80,1);
+            animation: recordPulse 1s infinite;
+        }
+
+        .record-btn.analyzing {
+            background: rgba(50, 120, 220, 0.4);
+            border-color: rgba(100,160,255,0.8);
+            animation: recordPulse 0.6s infinite;
+            cursor: not-allowed;
+        }
+
+        @keyframes recordPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,100,100,0.4); }
+            50% { box-shadow: 0 0 0 16px rgba(255,100,100,0); }
+        }
+
+        .record-status {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+            min-height: 22px;
+            margin-bottom: 4px;
+        }
+
+        .record-timer {
+            font-size: 1.5rem;
+            font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif;
+            color: rgba(255,200,100,0.9);
+            min-height: 36px;
+            margin-bottom: 10px;
+        }
+
+        /* 操作按钮行 */
+        .action-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 1px;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.22);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .action-btn.primary {
+            background: rgba(80,150,255,0.35);
+            border-color: rgba(100,180,255,0.6);
+        }
+
+        .action-btn.primary:hover:not(:disabled) {
+            background: rgba(80,150,255,0.55);
+        }
+
+        .upload-panel {
+            margin-top: 14px;
+            padding: 10px;
+            border: 1px dashed rgba(255,255,255,0.35);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .upload-top {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .upload-pick-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.16);
+            color: #fff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .upload-pick-btn:hover {
+            background: rgba(255,255,255,0.24);
+        }
+
+        .upload-input-hidden {
+            display: none;
+        }
+
+        .upload-file-name {
+            flex: 1;
+            min-width: 0;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: rgba(58, 34, 18, 0.25);
+            color: rgba(255,255,255,0.88);
+            font-size: 0.76rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .upload-clear-btn {
+            padding: 6px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.92);
+            font-size: 0.76rem;
+            cursor: pointer;
+        }
+
+        .upload-clear-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .upload-audio-preview {
+            width: 100%;
+            margin-top: 8px;
+            height: 34px;
+        }
+
+        .upload-action-row {
+            margin-top: 8px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .upload-hint {
+            margin-top: 6px;
+            font-size: 0.76rem;
+            color: rgba(95, 61, 35, 0.78);
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        /* ── 结果卡片 ─────────────────────────────── */
+        .result-card {
+            background: linear-gradient(155deg, rgba(241, 224, 189, 0.95), rgba(214, 181, 129, 0.92));
+            border: 2px solid rgba(108, 70, 39, 0.72);
+            border-radius: 18px;
+            padding: 22px 22px;
+            display: none;
+            animation: fadeInUp 0.5s ease;
+            box-shadow: 0 10px 30px rgba(26, 14, 7, 0.35);
+        }
+
+        .result-card.show { display: block; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-emotion-top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .emotion-icon-big {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .emotion-label-big {
+            font-size: 1.7rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            font-family: 'KaiTi', serif;
+        }
+
+        .emotion-comment {
+            font-size: 0.88rem;
+            color: rgba(95, 61, 35, 0.9);
+            line-height: 1.8;
+            padding: 10px 14px;
+            background: rgba(247, 235, 208, 0.72);
+            border-radius: 8px;
+            margin-bottom: 14px;
+            border-left: 3px solid rgba(120, 80, 46, 0.72);
+        }
+
+        /* 分数条 */
+        .score-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-label {
+            width: 48px;
+            font-size: 0.82rem;
+            text-align: right;
+            flex-shrink: 0;
+            color: rgba(95, 61, 35, 0.88);
+        }
+
+        .score-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: rgba(132, 95, 58, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .score-value {
+            width: 38px;
+            font-size: 0.78rem;
+            color: rgba(95, 61, 35, 0.78);
+            text-align: right;
+        }
+
+        /* ── 历史记录 ─────────────────────────────── */
+        .history-card {
+            background: linear-gradient(155deg, rgba(241, 224, 189, 0.95), rgba(214, 181, 129, 0.92));
+            border: 2px solid rgba(108, 70, 39, 0.72);
+            border-radius: 18px;
+            padding: 18px 20px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(26, 14, 7, 0.35);
+        }
+
+        .history-card.show { display: block; }
+
+        .history-card h4 {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            color: rgba(95, 61, 35, 0.82);
+            margin-bottom: 12px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-chip {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            background: rgba(247, 235, 208, 0.72);
+            border: 1px solid rgba(120, 80, 46, 0.38);
+        }
+
+        /* ── 完成按钮 ─────────────────────────────── */
+        .complete-btn {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 30px;
+            border: 2px solid rgba(100,220,150,0.6);
+            background: rgba(50,160,100,0.3);
+            color: #fff;
+            font-size: 1.05rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif;
+        }
+
+        .complete-btn.show { display: block; }
+
+        .complete-btn:hover {
+            background: rgba(50,160,100,0.55);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(50,160,100,0.35);
+        }
+
+        /* ── 错误提示 ─────────────────────────────── */
+        .error-toast {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: rgba(200,50,50,0.85);
+            color: #fff; padding: 12px 24px;
+            border-radius: 10px; font-size: 0.9rem;
+            z-index: 9999; transition: transform 0.4s ease;
+            max-width: 420px; text-align: center;
+            box-shadow: 0 8px 24px rgba(60, 14, 10, 0.45);
+        }
+
+        .error-toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* ── 后端状态条 ─────────────────────────────── */
+        .server-status {
+            position: fixed; top: 12px; right: 16px; z-index: 100;
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; color: rgba(244, 230, 205, 0.9);
+            background: rgba(77, 43, 27, 0.92); padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(213, 177, 126, 0.58);
+        }
+
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #999; transition: background 0.3s;
+        }
+
+        .status-dot.online { background: #4caf50; }
+        .status-dot.offline { background: #f44336; }
+        .status-dot.checking { background: #ff9800; animation: blink 0.8s infinite; }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+        }
+
+        /* ── 响应式 ─────────────────────────────── */
+        @media (max-width: 900px) {
+            .main-layout { flex-direction: column; }
+            .record-panel { width: 100%; }
+            .poem-panel { max-height: 45vh; }
+            .upload-top {
+                flex-wrap: wrap;
+            }
+
+            .upload-file-name {
+                width: 100%;
+            }
+
+            .upload-action-row {
+                justify-content: stretch;
+            }
+
+            .upload-action-row .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="moonlit-night">
+
+<!-- 后端状态 -->
+<div class="server-status">
+    <div class="status-dot checking" id="statusDot"></div>
+    <span id="statusText">正在连接服务…</span>
+</div>
+
+<!-- 标题 -->
+<div class="page-header">
+    <h1>情绪感知</h1>
+    <p>朗读春江花月夜 · 聆听您声音中的情感</p>
+</div>
+
+<!-- 主体 -->
+<div class="main-layout">
+
+    <!-- 左侧：诗词原文 -->
+    <div class="poem-panel">
+        <div class="poem-meta">
+            <div class="poem-title">春江花月夜</div>
+            <div class="poem-author">唐 · 张若虚</div>
+        </div>
+        <hr class="poem-divider">
+        <div class="poem-body">
+            <div class="stanza">
+                <p>春江潮水连海平，海上明月共潮生。</p>
+                <p>滟滟随波千万里，何处春江无月明！</p>
+            </div>
+            <div class="stanza">
+                <p>江流宛转绕芳甸，月照花林皆似霰；</p>
+                <p>空里流霜不觉飞，汀上白沙看不见。</p>
+            </div>
+            <div class="stanza">
+                <p>江天一色无纤尘，皎皎空中孤月轮。</p>
+                <p>江畔何人初见月？江月何年初照人？</p>
+            </div>
+            <div class="stanza">
+                <p>人生代代无穷已，江月年年望相似。</p>
+                <p>不知江月待何人，但见长江送流水。</p>
+            </div>
+            <div class="stanza">
+                <p>白云一片去悠悠，青枫浦上不胜愁。</p>
+                <p>谁家今夜扁舟子？何处相思明月楼？</p>
+            </div>
+            <div class="stanza">
+                <p>可怜楼上月徘徊，应照离人妆镜台。</p>
+                <p>玉户帘中卷不去，捣衣砧上拂还来。</p>
+            </div>
+            <div class="stanza">
+                <p>此时相望不相闻，愿逐月华流照君。</p>
+                <p>鸿雁长飞光不度，鱼龙潜跃水成文。</p>
+            </div>
+            <div class="stanza">
+                <p>昨夜闲潭梦落花，可怜春半不还家。</p>
+                <p>江水流春去欲尽，江潭落月复西斜。</p>
+            </div>
+            <div class="stanza">
+                <p>斜月沉沉藏海雾，碣石潇湘无限路。</p>
+                <p>不知乘月几人归，落月摇情满江树。</p>
+            </div>
+        </div>
+        <div class="poem-reading-tip">
+            💡 朗读提示：选取您喜欢的一段，按住录音按钮朗读 3～15 秒，
+            系统将分析您声音中流露的情感，感受诗词与情感的共鸣。
+        </div>
+    </div>
+
+    <!-- 右侧：录音 + 结果 -->
+    <div class="record-panel">
+
+        <!-- 录音控制卡片 -->
+        <div class="record-card">
+            <h3>🎙️ 朗读录音</h3>
+            <p class="subtitle">点击麦克风开始录音，再次点击停止<br>若麦克风不可用，可手动上传音频文件分析</p>
+
+            <!-- 波形 -->
+            <div class="waveform-container">
+                <canvas id="waveformCanvas"></canvas>
+                <div class="waveform-idle-text" id="waveformIdleText">等待录音…</div>
+            </div>
+
+            <!-- 计时器 -->
+            <div class="record-timer" id="recordTimer">00:00</div>
+
+            <!-- 录音按钮 -->
+            <div class="record-btn-wrap">
+                <button class="record-btn" id="recordBtn" title="点击开始/停止录音">🎤</button>
+            </div>
+
+            <!-- 状态文字 -->
+            <div class="record-status" id="recordStatus">点击麦克风开始朗读</div>
+
+            <!-- 操作按钮 -->
+            <div class="action-row" style="margin-top:10px;">
+                <button class="action-btn primary" id="analyzeBtn" disabled>📊 分析情绪</button>
+                <button class="action-btn" id="retryBtn" disabled>🔄 重新录制</button>
+            </div>
+
+            <div class="upload-panel">
+                <div class="upload-top">
+                    <label class="upload-pick-btn" for="uploadAudioInput">🎵 选择音频</label>
+                    <span class="upload-file-name" id="uploadFileName">未选择文件</span>
+                    <button class="upload-clear-btn" id="clearUploadBtn" type="button" disabled>清空</button>
+                </div>
+                <input class="upload-input-hidden" type="file" id="uploadAudioInput" accept="audio/*">
+                <audio class="upload-audio-preview" id="uploadAudioPreview" controls hidden></audio>
+                <div class="upload-action-row">
+                    <button class="action-btn primary" id="uploadAnalyzeBtn" disabled>⬆ 上传分析</button>
+                </div>
+            </div>
+            <div class="upload-hint">支持 wav/mp3/m4a/webm/ogg，上传后直接调用情绪识别接口。</div>
+
+
+        </div>
+
+        <!-- 分析结果卡片 -->
+        <div class="result-card" id="resultCard">
+            <div class="result-emotion-top">
+                <div class="emotion-icon-big" id="emotionIcon">😌</div>
+                <div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:4px;letter-spacing:2px;">检测到的情绪</div>
+                    <div class="emotion-label-big" id="emotionLabel">—</div>
+                </div>
+            </div>
+            <div class="emotion-comment" id="emotionComment"></div>
+            <div class="score-list" id="scoreList"></div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="history-card" id="historyCard">
+            <h4>历次情绪记录</h4>
+            <div class="history-list" id="historyList"></div>
+        </div>
+
+        <!-- 进入下一环节 -->
+        <button class="complete-btn" id="completeBtn">进入下一环节 ✦</button>
+
+    </div>
+</div>
+
+<!-- 错误提示 -->
+<div class="error-toast" id="errorToast"></div>
+
+<script>
+    // ══════════════════════════════════════════════
+    //  配置
+    // ══════════════════════════════════════════════
+    const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const BACKEND_CANDIDATES = isLocalHost
+        ? [
+            'http://localhost:5002',
+            'http://127.0.0.1:5002',
+            'http://localhost:5000',
+            'http://127.0.0.1:5000'
+        ]
+        : [
+            `${window.location.origin}/emotion-api`
+        ];
+    let BACKEND_URL = BACKEND_CANDIDATES[0];
+    const MIN_RECORD_MS   = 1500;   // 至少录1.5秒
+    const SEGMENT_MS      = 60000;  // 每60秒自动切一个片段
+
+    // ══════════════════════════════════════════════
+    //  状态
+    // ══════════════════════════════════════════════
+    let mediaRecorder = null;
+    let audioChunks = [];           // 当前片段的chunks
+    let currentMimeType = '';
+    let isRecording = false;
+    let recordStartTime = 0;
+    let timerInterval = null;
+    let segmentTimer = null;        // 每60秒切片定时器
+    let attemptCount = 0;
+    let historyEmotions = [];
+    let audioContext = null;
+    let analyserNode = null;
+    let animFrameId = null;
+    let serverOnline = false;
+    let uploadObjectUrl = null;
+
+    // 片段分析状态
+    let segmentResults = [];        // 已完成分析的片段结果
+    let pendingSegments = 0;        // 正在分析的片段数
+    let totalSegments = 0;          // 已发出的片段总数
+    let recordingStopped = false;   // 录音是否已停止
+
+    // DOM
+    // DOM
+    const recordBtn     = document.getElementById('recordBtn');
+    const analyzeBtn    = document.getElementById('analyzeBtn');
+    const retryBtn      = document.getElementById('retryBtn');
+    const recordStatus  = document.getElementById('recordStatus');
+    const recordTimer   = document.getElementById('recordTimer');
+    const resultCard    = document.getElementById('resultCard');
+    const historyCard   = document.getElementById('historyCard');
+    const completeBtn   = document.getElementById('completeBtn');
+    const uploadAudioInput = document.getElementById('uploadAudioInput');
+    const uploadFileName = document.getElementById('uploadFileName');
+    const clearUploadBtn = document.getElementById('clearUploadBtn');
+    const uploadAudioPreview = document.getElementById('uploadAudioPreview');
+    const uploadAnalyzeBtn = document.getElementById('uploadAnalyzeBtn');
+    const waveformCanvas = document.getElementById('waveformCanvas');
+    const waveformIdleText = document.getElementById('waveformIdleText');
+    const ctx2d = waveformCanvas.getContext('2d');
+    const statusDot  = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const errorToast = document.getElementById('errorToast');
+    const COMPLETE_TEXT_DEFAULT = '进入下一环节 ✦';
+    const COMPLETE_TEXT_SKIP = '跳过识别，进入下一环节 ✦';
+
+    // ══════════════════════════════════════════════
+    //  后端健康检查
+    // ══════════════════════════════════════════════
+    async function checkServer() {
+        for (const url of BACKEND_CANDIDATES) {
+            try {
+                const resp = await fetch(`${url}/health`, { signal: AbortSignal.timeout(3000) });
+                const data = await resp.json();
+                BACKEND_URL = url;
+                serverOnline = true;
+                statusDot.className = 'status-dot online';
+                if (data.model_loaded) {
+                    statusText.textContent = `Emotion2Vec Plus Seed 已就绪 (${url})`;
+                } else if (data.model_error) {
+                    statusText.textContent = `模型未加载: 请检查 FunASR 安装 (${url})`;
+                    statusDot.className = 'status-dot offline';
+                } else {
+                    statusText.textContent = `服务在线（模型加载中）(${url})`;
+                }
+                refreshUploadActionState();
+                return;
+            } catch {
+                // Try next candidate port.
+            }
+        }
+
+        serverOnline = false;
+        statusDot.className = 'status-dot offline';
+        statusText.textContent = '后端离线 (请启动 voice_emotion.py / launcher.exe)';
+        refreshUploadActionState();
+    }
+
+    checkServer();
+    setInterval(checkServer, 10000);
+
+    // ══════════════════════════════════════════════
+    //  错误提示
+    // ══════════════════════════════════════════════
+    function showError(msg, duration = 4000) {
+        errorToast.textContent = msg;
+        errorToast.classList.add('show');
+        setTimeout(() => errorToast.classList.remove('show'), duration);
+    }
+
+    function enableNextStepFallback(statusMsg = '') {
+        completeBtn.textContent = COMPLETE_TEXT_SKIP;
+        completeBtn.classList.add('show');
+        if (statusMsg) {
+            recordStatus.textContent = statusMsg;
+        }
+    }
+
+    function hasUploadFile() {
+        return !!(uploadAudioInput.files && uploadAudioInput.files.length > 0);
+    }
+
+    function refreshUploadActionState() {
+        const locked = isRecording || recordBtn.classList.contains('analyzing');
+        uploadAnalyzeBtn.disabled = !(serverOnline && hasUploadFile()) || locked;
+        clearUploadBtn.disabled = !hasUploadFile() || locked;
+    }
+
+    function resetUploadSelection(keepStatus = false) {
+        if (uploadObjectUrl) {
+            URL.revokeObjectURL(uploadObjectUrl);
+            uploadObjectUrl = null;
+        }
+        uploadAudioInput.value = '';
+        uploadFileName.textContent = '未选择文件';
+        uploadAudioPreview.pause();
+        uploadAudioPreview.removeAttribute('src');
+        uploadAudioPreview.hidden = true;
+        if (!keepStatus) {
+            recordStatus.textContent = '点击麦克风开始朗读';
+        }
+        refreshUploadActionState();
+    }
+
+    // ══════════════════════════════════════════════
+    //  计时器
+    // ══════════════════════════════════════════════
+    function startTimer() {
+        recordStartTime = Date.now();
+        recordTimer.textContent = '00:00';
+        timerInterval = setInterval(() => {
+            const sec = Math.floor((Date.now() - recordStartTime) / 1000);
+            const m = String(Math.floor(sec / 60)).padStart(2, '0');
+            const s = String(sec % 60).padStart(2, '0');
+            recordTimer.textContent = `${m}:${s}`;
+        }, 500);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    // ══════════════════════════════════════════════
+    //  波形可视化
+    // ══════════════════════════════════════════════
+    function resizeCanvas() {
+        waveformCanvas.width  = waveformCanvas.offsetWidth;
+        waveformCanvas.height = waveformCanvas.offsetHeight;
+    }
+
+    function drawIdleWave() {
+        resizeCanvas();
+        const W = waveformCanvas.width, H = waveformCanvas.height;
+        ctx2d.clearRect(0, 0, W, H);
+        ctx2d.strokeStyle = 'rgba(100,160,255,0.2)';
+        ctx2d.lineWidth = 1.5;
+        ctx2d.beginPath();
+        for (let x = 0; x < W; x++) {
+            const y = H / 2 + Math.sin(x * 0.05) * 4;
+            x === 0 ? ctx2d.moveTo(x, y) : ctx2d.lineTo(x, y);
+        }
+        ctx2d.stroke();
+    }
+
+    function drawLiveWave(dataArray) {
+        resizeCanvas();
+        const W = waveformCanvas.width, H = waveformCanvas.height;
+        ctx2d.clearRect(0, 0, W, H);
+
+        const bufLen = dataArray.length;
+        const sliceW = W / bufLen;
+        let x = 0;
+
+        ctx2d.lineWidth = 2;
+        ctx2d.strokeStyle = 'rgba(100,200,255,0.85)';
+        ctx2d.beginPath();
+
+        for (let i = 0; i < bufLen; i++) {
+            const v = dataArray[i] / 128.0;
+            const y = v * H / 2;
+            i === 0 ? ctx2d.moveTo(x, y) : ctx2d.lineTo(x, y);
+            x += sliceW;
+        }
+        ctx2d.lineTo(W, H / 2);
+        ctx2d.stroke();
+    }
+
+    function startWaveform(stream) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyserNode = audioContext.createAnalyser();
+        analyserNode.fftSize = 512;
+        const source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyserNode);
+
+        const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+        waveformIdleText.style.display = 'none';
+
+        function draw() {
+            animFrameId = requestAnimationFrame(draw);
+            analyserNode.getByteTimeDomainData(dataArray);
+            drawLiveWave(dataArray);
+        }
+        draw();
+    }
+
+    function stopWaveform() {
+        if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+        if (audioContext) { audioContext.close(); audioContext = null; }
+        analyserNode = null;
+        waveformIdleText.style.display = '';
+        drawIdleWave();
+    }
+
+    drawIdleWave();
+
+    // ══════════════════════════════════════════════
+    //  录音核心
+    // ══════════════════════════════════════════════
+    recordBtn.addEventListener('click', async () => {
+        if (recordBtn.classList.contains('analyzing')) return;
+
+        if (!isRecording) {
+            // ── 开始录音 ──
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                currentMimeType = (() => {
+                    const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/ogg'];
+                    return types.find(t => MediaRecorder.isTypeSupported(t)) || '';
+                })();
+
+                // 重置片段状态
+                segmentResults = [];
+                pendingSegments = 0;
+                totalSegments = 0;
+                recordingStopped = false;
+                audioChunks = [];
+
+                function buildRecorder() {
+                    const localChunks = [];   // 每个 Recorder 独立的 chunks，避免共享污染
+                    const mr = new MediaRecorder(stream, currentMimeType ? { mimeType: currentMimeType } : {});
+
+                    mr.ondataavailable = e => {
+                        if (e.data && e.data.size > 0) localChunks.push(e.data);
+                    };
+
+                    mr.onstop = () => {
+                        const blob = new Blob(localChunks, { type: currentMimeType || 'audio/webm' });
+                        if (blob.size > 1000) {
+                            submitSegment(blob);
+                        } else {
+                            // 片段太短跳过
+                            checkAllDone();
+                        }
+                    };
+                    return mr;
+                }
+
+                mediaRecorder = buildRecorder();
+
+                // 每60秒自动切片
+                segmentTimer = setInterval(() => {
+                    if (!isRecording) return;
+                    totalSegments++;
+
+                    // 停当前recorder，立即起新的
+                    const oldMr = mediaRecorder;
+                    mediaRecorder = buildRecorder();
+                    mediaRecorder.start(100);
+                    oldMr.stop();   // 触发 onstop → submitSegment
+                }, SEGMENT_MS);
+
+                mediaRecorder.start(100);
+                isRecording = true;
+                attemptCount++;
+                startTimer();
+                startWaveform(stream);
+
+                recordBtn.classList.add('recording');
+                recordBtn.textContent = '⏹';
+                recordStatus.textContent = '正在录音…轻声朗读诗句';
+                analyzeBtn.disabled = true;
+                retryBtn.disabled = true;
+                refreshUploadActionState();
+
+            } catch (e) {
+                showError('无法访问麦克风，请检查浏览器权限设置，或改用手动上传音频');
+                enableNextStepFallback('麦克风不可用，可跳过本环节进入下一环节');
+                console.error(e);
+            }
+        } else {
+            stopRecording();
+        }
+    });
+
+    function stopRecording() {
+        if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+        clearInterval(segmentTimer);
+        segmentTimer = null;
+        stopTimer();
+        stopWaveform();
+        isRecording = false;
+        recordingStopped = true;
+        totalSegments++;    // 最后一段
+
+        recordBtn.classList.remove('recording');
+        recordBtn.classList.add('analyzing');
+        recordBtn.textContent = '⏳';
+        recordStatus.textContent = '录音结束，等待分析完成…';
+        retryBtn.disabled = true;
+        analyzeBtn.disabled = true;
+        refreshUploadActionState();
+
+        mediaRecorder.stop();   // 触发 onstop → submitSegment → checkAllDone
+    }
+
+    // ── 提交单个片段到后端 ──
+    async function submitSegment(blob) {
+        pendingSegments++;
+        const segIdx = totalSegments;   // 本片段序号（闭包）
+        try {
+            const formData = new FormData();
+            const ext = blob.type.includes('ogg') ? '.ogg' : '.webm';
+            formData.append('audio', blob, `seg${segIdx}${ext}`);
+
+            const resp = await fetch(`${BACKEND_URL}/analyze`, {
+                method: 'POST',
+                body: formData,
+                signal: AbortSignal.timeout(90000),
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                segmentResults.push({
+                    scores: data.scores,
+                    weight: blob.size,   // 按文件大小加权（近似时长）
+                    index: segIdx,
+                });
+            } else {
+                console.warn(`片段 ${segIdx} 分析失败:`, data.error);
+            }
+        } catch (e) {
+            console.warn(`片段 ${segIdx} 请求异常:`, e);
+        } finally {
+            pendingSegments--;
+            checkAllDone();
+        }
+    }
+
+    // ── 检查是否所有片段都已完成 ──
+    function checkAllDone() {
+        if (!recordingStopped) return;           // 录音尚未结束
+        if (pendingSegments > 0) return;         // 还有片段在分析
+        // 所有片段分析完毕
+        if (segmentResults.length === 0) {
+            recordStatus.textContent = '未获得任何有效分析结果';
+            recordBtn.classList.remove('analyzing');
+            recordBtn.textContent = '🎤';
+            retryBtn.disabled = false;
+            enableNextStepFallback('识别失败，可跳过本环节进入下一环节');
+            return;
+        }
+        summarizeResults();
+    }
+
+    retryBtn.addEventListener('click', () => {
+        segmentResults = [];
+        historyEmotions = [];
+        pendingSegments = 0;
+        totalSegments = 0;
+        recordingStopped = false;
+        analyzeBtn.disabled = true;
+        retryBtn.disabled = true;
+        resultCard.classList.remove('show');
+        historyCard.classList.remove('show');
+        recordStatus.textContent = '点击麦克风重新录音';
+        recordTimer.textContent = '00:00';
+        resetUploadSelection(true);
+        refreshUploadActionState();
+    });
+
+    uploadAudioInput.addEventListener('change', () => {
+        const file = uploadAudioInput.files && uploadAudioInput.files[0];
+        if (!file) {
+            resetUploadSelection(true);
+            return;
+        }
+
+        if (uploadObjectUrl) {
+            URL.revokeObjectURL(uploadObjectUrl);
+            uploadObjectUrl = null;
+        }
+        uploadObjectUrl = URL.createObjectURL(file);
+        uploadAudioPreview.src = uploadObjectUrl;
+        uploadAudioPreview.hidden = false;
+        uploadFileName.textContent = file.name;
+        recordStatus.textContent = `已选择文件：${file.name}`;
+        refreshUploadActionState();
+    });
+
+    clearUploadBtn.addEventListener('click', () => {
+        resetUploadSelection(true);
+    });
+
+    uploadAnalyzeBtn.addEventListener('click', async () => {
+        if (isRecording) {
+            showError('请先停止录音，再上传文件分析');
+            return;
+        }
+        if (!serverOnline) {
+            showError('后端未连接，无法上传分析');
+            return;
+        }
+        const file = uploadAudioInput.files && uploadAudioInput.files[0];
+        if (!file) {
+            showError('请先选择音频文件');
+            return;
+        }
+
+        recordBtn.classList.add('analyzing');
+        recordBtn.textContent = '⏳';
+        refreshUploadActionState();
+        retryBtn.disabled = true;
+        analyzeBtn.disabled = true;
+        recordStatus.textContent = `正在分析上传文件：${file.name}`;
+
+        try {
+            const formData = new FormData();
+            formData.append('audio', file, file.name || 'upload_audio');
+
+            const resp = await fetch(`${BACKEND_URL}/analyze`, {
+                method: 'POST',
+                body: formData,
+                signal: AbortSignal.timeout(90000),
+            });
+            const data = await resp.json();
+
+            if (!resp.ok || !data.success) {
+                throw new Error(data.error || `HTTP ${resp.status}`);
+            }
+
+            segmentResults = [{
+                scores: data.scores || [],
+                weight: Math.max(file.size, 1),
+                index: 1,
+            }];
+            showResult(data);
+            completeBtn.textContent = COMPLETE_TEXT_DEFAULT;
+            completeBtn.classList.add('show');
+            recordStatus.textContent = '上传音频分析完成';
+        } catch (e) {
+            showError('上传分析失败：' + e.message);
+            enableNextStepFallback('上传分析失败，可重试或直接进入下一环节');
+        } finally {
+            recordBtn.classList.remove('analyzing');
+            recordBtn.textContent = '🎤';
+            retryBtn.disabled = false;
+            refreshUploadActionState();
+        }
+    });
+
+    // ══════════════════════════════════════════════
+    //  汇总所有片段结果
+    // ══════════════════════════════════════════════
+    analyzeBtn.addEventListener('click', summarizeResults);
+
+    async function summarizeResults() {
+        if (segmentResults.length === 0) { showError('暂无分析数据'); return; }
+
+        recordBtn.classList.add('analyzing');
+        recordBtn.textContent = '⏳';
+        analyzeBtn.disabled = true;
+        retryBtn.disabled = true;
+        recordStatus.textContent = `正在汇总 ${segmentResults.length} 个片段的分析结果…`;
+
+        try {
+            const resp = await fetch(`${BACKEND_URL}/summarize`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ segments: segmentResults }),
+                signal: AbortSignal.timeout(10000),
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                showResult(data);
+                completeBtn.textContent = COMPLETE_TEXT_DEFAULT;
+                completeBtn.classList.add('show');
+                recordStatus.textContent = `分析完成`;
+            } else {
+                showError('汇总失败：' + (data.error || '未知错误'));
+                enableNextStepFallback('汇总失败，可重试或直接进入下一环节');
+            }
+        } catch (e) {
+            showError('汇总请求失败：' + e.message);
+            enableNextStepFallback('连接失败，可重试或直接进入下一环节');
+        } finally {
+            recordBtn.classList.remove('analyzing');
+            recordBtn.textContent = '🎤';
+            retryBtn.disabled = false;
+            refreshUploadActionState();
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    //  展示结果
+    // ══════════════════════════════════════════════
+    function showResult(data) {
+        document.getElementById('emotionIcon').textContent  = data.icon || '🎵';
+        document.getElementById('emotionLabel').textContent = data.emotion || '未知';
+        document.getElementById('emotionLabel').style.color = data.color || '#fff';
+        document.getElementById('emotionComment').textContent = data.comment || '';
+
+        // 分数条
+        const scoreList = document.getElementById('scoreList');
+        scoreList.innerHTML = '';
+        (data.scores || []).slice(0, 8).forEach(item => {
+            const pct = Math.round(item.score * 100);
+            const color = getEmotionColor(item.label);
+            scoreList.innerHTML += `
+                <div class="score-item">
+                    <div class="score-label">${item.label}</div>
+                    <div class="score-bar-bg">
+                        <div class="score-bar-fill" style="width:0%;background:${color};"
+                             data-target="${pct}%"></div>
+                    </div>
+                    <div class="score-value">${pct}%</div>
+                </div>`;
+        });
+
+        resultCard.classList.add('show');
+        recordStatus.textContent = '分析完成！';
+
+        // 动画启动分数条
+        setTimeout(() => {
+            resultCard.querySelectorAll('.score-bar-fill').forEach(el => {
+                el.style.width = el.dataset.target;
+            });
+        }, 100);
+    }
+
+    function getEmotionColor(label) {
+        const map = {
+            '生气': '#e74c3c', '厌恶': '#8e44ad', '害怕': '#9b59b6',
+            '开心': '#f1c40f', '中立': '#3498db', '其他': '#7f8c8d',
+            '伤心': '#2980b9', '惊讶': '#1abc9c', '未知': '#95a5a6',
+        };
+        return map[label] || '#95a5a6';
+    }
+
+    // ══════════════════════════════════════════════
+    //  历史记录
+    // ══════════════════════════════════════════════
+    function updateHistory() {
+        if (historyEmotions.length === 0) return;
+        const list = document.getElementById('historyList');
+        list.innerHTML = historyEmotions.map((e) =>
+            `<div class="history-chip" style="border-color:${e.color}40;color:${e.color};">
+                第${e.seg}段 ${e.icon} ${e.emotion}
+            </div>`
+        ).join('');
+        historyCard.classList.add('show');
+    }
+
+    // ══════════════════════════════════════════════
+    //  完成按钮 → 通知父页面
+    // ══════════════════════════════════════════════
+    completeBtn.addEventListener('click', () => {
+        window.parent.postMessage({ type: 'pageCompleted', page: 5 }, '*');
+    });
+
+    // 分析成功后也自动通知
+    // （留给用户点击，不自动跳转）
+</script>
+</body>
+</html>

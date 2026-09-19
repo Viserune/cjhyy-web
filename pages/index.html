@@ -1,0 +1,441 @@
+<!--/* AI辅助生成:使用deepseek-R1/deepseek-v3 ,2026-2 */-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拖拽图片拼图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            background-image: url('../assets/images/background3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(29, 16, 8, 0.5), rgba(58, 32, 18, 0.28));
+            z-index: -1;
+        }
+        h1 {
+            margin-bottom: 5px;
+            color: #f2dfbe;
+            text-shadow: 0 2px 8px rgba(24, 13, 7, 0.8);
+            font-size: 36px;
+            letter-spacing: 2px;
+        }
+        p {
+            margin-bottom: 15px;
+            color: #f2dfbe;
+            text-shadow: 0 1px 4px rgba(24, 13, 7, 0.8);
+            font-size: 16px;
+        }
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(4, 240px);
+            grid-template-rows: repeat(2, 135px);
+            gap: 30px;
+            margin-bottom: 25px;
+            padding: 40px;
+            background: linear-gradient(155deg, rgba(241, 224, 189, 0.95), rgba(214, 181, 129, 0.92));
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(26, 14, 7, 0.35);
+            border: 2px solid rgba(108, 70, 39, 0.7);
+        }
+        .drag-item {
+            width: 240px;
+            height: 135px;
+            cursor: grab;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .placeholder {
+            width: 240px;
+            height: 135px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .drag-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        }
+        .drag-item:active {
+            cursor: grabbing;
+        }
+        .zones-container {
+            display: grid;
+            grid-template-columns: repeat(4, auto);
+            gap: 30px;
+            margin-bottom: 20px;
+            padding: 40px;
+            background: linear-gradient(155deg, rgba(241, 224, 189, 0.95), rgba(214, 181, 129, 0.92));
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(26, 14, 7, 0.35);
+            border: 2px solid rgba(108, 70, 39, 0.7);
+        }
+        .drop-zone-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .hint {
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #4f2f1b;
+            font-size: 15px;
+            text-shadow: 0 1px 0 rgba(255, 243, 216, 0.8);
+        }
+        .drop-zone {
+            width: 260px;
+            height: 146px;
+            border: 3px dashed rgba(126, 87, 51, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(250, 238, 214, 0.55);
+            position: relative;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .drop-zone.over {
+            background-color: rgba(248, 230, 196, 0.9);
+            border-color: rgba(126, 87, 51, 0.92);
+            transform: scale(1.05);
+        }
+        .drop-zone.correct {
+            background-color: rgba(144, 238, 144, 0.4);
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+        }
+        .drop-zone.incorrect {
+            background-color: rgba(255, 182, 193, 0.4);
+            border-color: #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+        .drop-zone .drag-item {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin: 0;
+            opacity: 1 !important;
+        }
+        #submit-btn {
+            cursor: pointer;
+            margin-top: 10px;
+            width: 150px;
+            height: 70px;
+            transition: all 0.2s;
+            filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.5));
+        }
+        #submit-btn:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6));
+        }
+        #submit-btn:active {
+            transform: scale(0.95);
+        }
+        #message-box {
+            margin-top: 15px;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 350px;
+            opacity: 0;
+            transition: opacity 0.4s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        #message-box.show {
+            opacity: 1;
+        }
+        #message-box.success {
+            background-color: rgba(144, 238, 144, 0.95);
+            color: #006400;
+            border: 3px solid #00ff00;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+        }
+        #message-box.error {
+            background-color: rgba(255, 182, 193, 0.95);
+            color: #8B0000;
+            border: 3px solid #ff0000;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+        }
+        #message-box.warning {
+            background-color: rgba(255, 228, 181, 0.95);
+            color: #FF8C00;
+            border: 3px solid #FFA500;
+            box-shadow: 0 0 30px rgba(255, 165, 0, 0.6);
+        }
+    </style>
+    <link rel="stylesheet" href="../assets/night-theme.css">
+</head>
+<body class="moonlit-night">
+    <h1>拖拽图片拼图</h1>
+    <p>将下方8个图片拖拽到对应的方框中，全部放入后点击提交按钮</p>
+    
+    <div class="image-container" id="image-container">
+        <div class="drag-item" id="img1" draggable="true" style="background-image: url('../assets/images/img1.png');"></div>
+        <div class="drag-item" id="img2" draggable="true" style="background-image: url('../assets/images/img2.png');"></div>
+        <div class="drag-item" id="img3" draggable="true" style="background-image: url('../assets/images/img3.png');"></div>
+        <div class="drag-item" id="img4" draggable="true" style="background-image: url('../assets/images/img4.png');"></div>
+        <div class="drag-item" id="img5" draggable="true" style="background-image: url('../assets/images/img5.png');"></div>
+        <div class="drag-item" id="img6" draggable="true" style="background-image: url('../assets/images/img6.png');"></div>
+        <div class="drag-item" id="img7" draggable="true" style="background-image: url('../assets/images/img7.png');"></div>
+        <div class="drag-item" id="img8" draggable="true" style="background-image: url('../assets/images/img8.png');"></div>
+    </div>
+    
+    <div class="zones-container">
+        <div class="drop-zone-wrapper">
+            <div class="hint">汀上白沙看不见</div>
+            <div class="drop-zone" data-correct="img1"></div>
+        </div>
+        <div class="drop-zone-wrapper">
+            <div class="hint">落月摇情满江树</div>
+            <div class="drop-zone" data-correct="img2"></div>
+        </div>
+        <div class="drop-zone-wrapper">
+            <div class="hint">斜月沉沉藏海雾</div>
+            <div class="drop-zone" data-correct="img3"></div>
+        </div>
+        <div class="drop-zone-wrapper">
+            <div class="hint">月照花林皆似霰</div>
+            <div class="drop-zone" data-correct="img4"></div>
+        </div>
+        <div class="drop-zone-wrapper">
+            <div class="hint">鱼龙潜跃水成文</div>
+            <div class="drop-zone" data-correct="img5"></div>
+        </div>
+        <div class="drop-zone-wrapper">
+            <div class="hint">春江潮水连海平</div>
+            <div class="drop-zone" data-correct="img6"></div>
+        </div>
+        <div class="drop-zone-wrapper">
+            <div class="hint">鸿雁长飞光不度</div>
+            <div class="drop-zone" data-correct="img7"></div>
+        </div>
+        <div class="drop-zone-wrapper">
+            <div class="hint">青枫浦上不胜愁</div>
+            <div class="drop-zone" data-correct="img8"></div>
+        </div>
+    </div>
+    
+    <img id="submit-btn" src="../assets/btn/btn_default.png" alt="提交">
+    
+    <div id="message-box"></div>
+    
+    <script>
+        let draggedElement = null;
+        const imageContainer = document.getElementById('image-container');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const submitBtn = document.getElementById('submit-btn');
+        const messageBox = document.getElementById('message-box');
+        
+        // 页面加载时打乱图片顺序
+        window.addEventListener('DOMContentLoaded', () => {
+            const items = Array.from(document.querySelectorAll('.drag-item'));
+            items.sort(() => Math.random() - 0.5);
+            items.forEach(item => imageContainer.appendChild(item));
+            updateButtonState();
+        });
+        
+        // 拖拽开始
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('drag-item')) {
+                draggedElement = e.target;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', e.target.id);
+                setTimeout(() => e.target.style.opacity = '0.5', 0);
+            }
+        });
+        
+        // 拖拽结束
+        document.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('drag-item')) {
+                e.target.style.opacity = '1';
+            }
+        });
+        
+        // 方框拖拽处理
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('over');
+            });
+            
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('over');
+            });
+            
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('over');
+                
+                if (draggedElement) {
+                    const isFromContainer = draggedElement.parentElement === imageContainer;
+                    const existingItem = zone.querySelector('.drag-item');
+                    
+                    if (isFromContainer) {
+                        // 从图片栏拖出：克隆并替换为占位符
+                        const clone = draggedElement.cloneNode(true);
+                        clone.id = draggedElement.id;
+                        clone.style.opacity = '1';
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'placeholder';
+                        draggedElement.replaceWith(placeholder);
+                        
+                        if (existingItem) {
+                            // 如果方框已有图片，移回图片栏
+                            const placeholders = imageContainer.querySelectorAll('.placeholder');
+                            if (placeholders.length > 0) {
+                                placeholders[0].replaceWith(existingItem);
+                            }
+                        }
+                        zone.appendChild(clone);
+                        setupDragForClone(clone);
+                    } else {
+                        // 从其他方框拖出：直接交换
+                        const draggedParent = draggedElement.parentElement;
+                        if (existingItem) {
+                            // 交换两个方框的图片
+                            draggedParent.appendChild(existingItem);
+                        }
+                        draggedElement.style.opacity = '1';
+                        zone.appendChild(draggedElement);
+                    }
+                    
+                    draggedElement = null;
+                    updateButtonState();
+                }
+            });
+        });
+        
+        // 图片栏拖拽处理（支持放回）
+        imageContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+        
+        imageContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedElement && draggedElement.parentElement !== imageContainer) {
+                // 从方框拖回图片栏
+                const placeholders = imageContainer.querySelectorAll('.placeholder');
+                if (placeholders.length > 0) {
+                    draggedElement.style.opacity = '1';
+                    placeholders[0].replaceWith(draggedElement);
+                    draggedElement = null;
+                    updateButtonState();
+                }
+            }
+        });
+        
+        // 为克隆元素设置拖拽
+        function setupDragForClone(element) {
+            element.addEventListener('dragstart', (e) => {
+                draggedElement = e.target;
+                e.dataTransfer.effectAllowed = 'move';
+                setTimeout(() => e.target.style.opacity = '0.5', 0);
+            });
+            
+            element.addEventListener('dragend', (e) => {
+                e.target.style.opacity = '1';
+            });
+        }
+        
+        // 更新按钮状态
+        function updateButtonState() {
+            const filledZones = Array.from(dropZones).filter(zone => zone.querySelector('.drag-item')).length;
+            if (filledZones === 8) {
+                submitBtn.src = '../assets/btn/btn_light.png';
+            } else {
+                submitBtn.src = '../assets/btn/btn_default.png';
+            }
+        }
+        
+        // 提交检查
+        submitBtn.addEventListener('click', () => {
+            submitBtn.src = '../assets/btn/btn_pressed.png';
+            
+            setTimeout(() => {
+                let allCorrect = true;
+                let allFilled = true;
+                
+                dropZones.forEach(zone => {
+                    zone.classList.remove('correct', 'incorrect');
+                    const correctId = zone.dataset.correct;
+                    const placedItem = zone.querySelector('.drag-item');
+                    
+                    if (!placedItem) {
+                        allFilled = false;
+                        return;
+                    }
+                    
+                    if (placedItem.id === correctId) {
+                        zone.classList.add('correct');
+                    } else {
+                        zone.classList.add('incorrect');
+                        allCorrect = false;
+                    }
+                });
+                
+                if (!allFilled) {
+                    submitBtn.src = '../assets/btn/btn_default.png';
+                    showMessage('请先将所有图片放入方框！', 'warning');
+                } else if (allCorrect) {
+                    submitBtn.src = '../assets/btn/btn_light.png';
+                    showMessage('恭喜！全部正确！🎉', 'success');
+                    
+                    // 通知主页面游戏完成
+                    if (window.parent !== window) {
+                        setTimeout(() => {
+                            window.parent.postMessage({
+                                type: 'gameCompleted',
+                                page: 4
+                            }, '*');
+                            window.parent.postMessage({
+                                type: 'pageCompleted',
+                                page: 4
+                            }, '*');
+                        }, 1000);
+                    }
+                } else {
+                    submitBtn.src = '../assets/btn/btn_error.png';
+                    showMessage('有错误，请检查红色方框。', 'error');
+                }
+            }, 200);
+        });
+        
+        // 显示消息
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = 'show ' + type;
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

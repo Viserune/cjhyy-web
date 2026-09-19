@@ -1,0 +1,348 @@
+<!--/* AI辅助生成:使用deepseek-R1/deepseek-v3 ,2026-2 */-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>诗句再创作</title>
+    <script src="../assets/config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif;
+            min-height: 100vh;
+            background-image: url('../assets/images/background3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(29, 16, 8, 0.5), rgba(58, 32, 18, 0.28));
+            z-index: -1;
+        }
+
+        .container {
+            width: min(900px, 100%);
+            background: linear-gradient(155deg, rgba(241, 224, 189, 0.95), rgba(214, 181, 129, 0.92));
+            border: 2px solid rgba(108, 70, 39, 0.78);
+            border-radius: 18px;
+            box-shadow: 0 12px 45px rgba(26, 14, 7, 0.45);
+            padding: 30px;
+            color: #4f2f1b;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 32px;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-shadow: 0 1px 0 rgba(255, 244, 217, 0.7);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 15px;
+            color: rgba(83, 49, 26, 0.9);
+            margin-bottom: 22px;
+        }
+
+        .api-config-hint {
+            display: none;
+            background: rgba(255, 200, 0, 0.28);
+            border: 1px solid rgba(255, 200, 0, 0.6);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .keyword-input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 24px;
+            border: 2px solid rgba(132, 95, 58, 0.45);
+            background: rgba(255, 246, 224, 0.9);
+            color: #4f2f1b;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .keyword-input::placeholder {
+            color: rgba(84, 50, 26, 0.5);
+        }
+
+        .generate-btn {
+            padding: 14px 28px;
+            border-radius: 24px;
+            border: 2px solid rgba(105, 26, 16, 0.9);
+            background: linear-gradient(180deg, rgba(194, 79, 57, 0.95), rgba(157, 52, 35, 0.92));
+            color: #fbe9cf;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .generate-btn:hover {
+            background: linear-gradient(180deg, rgba(212, 92, 68, 0.98), rgba(173, 60, 42, 0.95));
+            transform: scale(1.03);
+        }
+
+        .generate-btn:disabled,
+        .keyword-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .examples {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: rgba(83, 49, 26, 0.86);
+        }
+
+        .example-btn {
+            padding: 6px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(132, 95, 58, 0.5);
+            background: rgba(247, 231, 199, 0.9);
+            color: rgba(79, 46, 24, 0.86);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-btn:hover {
+            background: rgba(250, 238, 212, 0.98);
+        }
+
+        .result-box {
+            min-height: 180px;
+            border-radius: 14px;
+            border: 1px solid rgba(132, 95, 58, 0.45);
+            background: rgba(255, 248, 233, 0.78);
+            padding: 18px;
+            line-height: 2;
+            font-size: 24px;
+            text-align: center;
+            white-space: pre-wrap;
+            text-shadow: none;
+        }
+
+        .result-label {
+            margin-bottom: 10px;
+            color: rgba(83, 49, 26, 0.88);
+            font-size: 15px;
+        }
+
+        .placeholder {
+            font-size: 16px;
+            color: rgba(83, 49, 26, 0.8);
+            line-height: 1.8;
+            text-align: left;
+        }
+
+        .loading {
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .error {
+            color: #ffd2d2;
+            font-size: 16px;
+            background: rgba(255, 50, 50, 0.35);
+            border: 1px solid rgba(255, 80, 80, 0.6);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 720px) {
+            .input-row {
+                flex-direction: column;
+            }
+
+            .generate-btn {
+                width: 100%;
+            }
+
+            .result-box {
+                font-size: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../assets/night-theme.css">
+</head>
+<body class="moonlit-night">
+    <div class="container">
+        <h1 class="title">诗句再创作</h1>
+        <p class="subtitle">输入关键词，生成一句或两句与《春江花月夜》意境和风格贴近的诗句</p>
+
+        <div class="api-config-hint" id="apiConfigHint">
+            ⚠️ 请先在 assets/config.js 中配置 DeepSeek API Key
+        </div>
+
+        <div class="input-row">
+            <input id="keywordInput" class="keyword-input" type="text" placeholder="例如：春江 思念">
+            <button id="generateBtn" class="generate-btn">生成诗句</button>
+        </div>
+
+        <div class="examples">
+            <span>示例输入：</span>
+            <button class="example-btn" data-keywords="春江 思念">春江 思念</button>
+            <button class="example-btn" data-keywords="明月 离别">明月 离别</button>
+            <button class="example-btn" data-keywords="江潮 归舟">江潮 归舟</button>
+        </div>
+
+        <div class="result-label">生成结果</div>
+        <div id="resultBox" class="result-box">
+            <div class="placeholder">示例输出：
+春江潮起送归舟，明月随人到渡头。</div>
+        </div>
+    </div>
+
+    <script>
+        const CFG_DEEPSEEK = (typeof APP_CONFIG !== 'undefined') ? APP_CONFIG.deepseek : { apiKey: '', apiUrl: '', model: '' };
+        const OPENAI_API_KEY = CFG_DEEPSEEK.apiKey || 'YOUR_DEEPSEEK_API_KEY_HERE';
+        const OPENAI_API_URL = CFG_DEEPSEEK.apiUrl || 'https://api.deepseek.com/v1/chat/completions';
+        const MODEL = CFG_DEEPSEEK.model || 'deepseek-chat';
+
+        const SYSTEM_PROMPT = `你是一位擅长唐风诗句再创作的诗人，请严格按照以下要求生成：
+1. 根据用户给出的关键词，创作一句或两句中文诗句。
+2. 风格需贴近《春江花月夜》：清丽空灵、江月春夜意境、含蓄悠远。
+3. 尽量使用近体诗审美与节奏，句式工整、语言凝练自然。
+4. 输出只包含诗句正文，不要解释，不要标题，不要引号。
+5. 总字数控制在 10~28 字之间；如果输出两句，使用中文逗号与句号断句。`;
+
+        const keywordInput = document.getElementById('keywordInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const resultBox = document.getElementById('resultBox');
+        const apiConfigHint = document.getElementById('apiConfigHint');
+        const exampleButtons = document.querySelectorAll('.example-btn');
+        let hasCompleted = false;
+
+        if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_DEEPSEEK_API_KEY_HERE') {
+            apiConfigHint.style.display = 'block';
+        }
+
+        exampleButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                keywordInput.value = btn.dataset.keywords;
+                createPoetry();
+            });
+        });
+
+        generateBtn.addEventListener('click', createPoetry);
+        keywordInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                createPoetry();
+            }
+        });
+
+        async function createPoetry() {
+            const keywords = keywordInput.value.trim();
+            if (!keywords) {
+                resultBox.innerHTML = '<div class="error">请输入关键词后再生成。</div>';
+                return;
+            }
+
+            keywordInput.disabled = true;
+            generateBtn.disabled = true;
+            resultBox.innerHTML = '<div class="loading">正在酝酿诗意，请稍候...</div>';
+
+            try {
+                const poem = await callOpenAI(keywords);
+                resultBox.textContent = normalizePoem(poem);
+
+                if (!hasCompleted && window.parent !== window) {
+                    hasCompleted = true;
+                    window.parent.postMessage({
+                        type: 'pageCompleted',
+                        page: 6
+                    }, '*');
+                }
+            } catch (error) {
+                console.error('诗句生成失败:', error);
+                const errorMessage = error.message.includes('API key')
+                    ? '请先配置有效的 DeepSeek API 密钥。'
+                    : '生成失败，请稍后重试。';
+                resultBox.innerHTML = `<div class="error">${errorMessage}</div>`;
+            } finally {
+                keywordInput.disabled = false;
+                generateBtn.disabled = false;
+                keywordInput.focus();
+            }
+        }
+
+        async function callOpenAI(keywords) {
+            if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_DEEPSEEK_API_KEY_HERE') {
+                throw new Error('API key not configured');
+            }
+
+            const response = await fetch(OPENAI_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [
+                        { role: 'system', content: SYSTEM_PROMPT },
+                        { role: 'user', content: `关键词：${keywords}` }
+                    ],
+                    temperature: 0.85,
+                    max_tokens: 120
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'API请求失败');
+            }
+
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content?.trim() || '春江有信，明月无声。';
+        }
+
+        function normalizePoem(content) {
+            const cleaned = content
+                .replace(/[“”"']/g, '')
+                .replace(/^\s*诗句[:：]?\s*/g, '')
+                .split('\n')
+                .map(line => line.trim())
+                .filter(Boolean)
+                .slice(0, 2)
+                .join('\n');
+
+            return cleaned || '春江有信，明月无声。';
+        }
+    </script>
+</body>
+</html>

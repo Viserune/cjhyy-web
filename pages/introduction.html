@@ -1,0 +1,262 @@
+<!--/* AI辅助生成:使用deepseek-R1/deepseek-v3 ,2026-2 */-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>春江花月夜 - 介绍</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif;
+            min-height: 100vh;
+            background-image: url('../assets/images/background3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(31, 17, 9, 0.52), rgba(58, 31, 17, 0.34));
+            z-index: -1;
+        }
+        
+        .video-container {
+            width: 90%;
+            max-width: 1500px;
+            padding: 15px;
+            background:
+                linear-gradient(155deg, rgba(241, 224, 189, 0.95), rgba(214, 181, 129, 0.92)),
+                repeating-linear-gradient(90deg, rgba(92, 61, 35, 0.05) 0px, rgba(92, 61, 35, 0.05) 1px, transparent 1px, transparent 5px);
+            border-radius: 22px;
+            box-shadow: 0 20px 72px rgba(18, 10, 5, 0.55);
+            border: 2px solid rgba(105, 68, 38, 0.75);
+            position: relative;
+            flex-shrink: 0;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .video-container.is-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            background: transparent;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+        
+        video {
+            width: 100%;
+            max-width: 1350px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        /* 缩放效果 */
+        .video-container.zoom {
+            animation: zoomPulse 0.8s ease-out;
+        }
+        
+        @keyframes zoomPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 开始页面 */
+        #start-page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+            z-index: 100;
+            pointer-events: auto;
+            background: linear-gradient(180deg, rgba(31, 17, 9, 0.52), rgba(58, 31, 17, 0.34));
+        }
+        
+        #start-page.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .start-container {
+            text-align: center;
+            padding: 60px 80px;
+            background:
+                linear-gradient(160deg, rgba(246, 231, 198, 0.95), rgba(223, 194, 145, 0.94)),
+                repeating-linear-gradient(0deg, rgba(88, 58, 32, 0.05) 0px, rgba(88, 58, 32, 0.05) 1px, transparent 1px, transparent 4px);
+            border-radius: 14px;
+            box-shadow:
+                0 14px 46px rgba(20, 11, 6, 0.45),
+                inset 0 0 0 1px rgba(255, 243, 216, 0.78);
+            border: 2px solid rgba(113, 74, 42, 0.7);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .start-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 60px rgba(0, 0, 0, 0.6);
+        }
+        
+        .start-title {
+            font-size: 48px;
+            color: #4d2a16;
+            text-shadow: 0 2px 0 rgba(255, 245, 223, 0.75);
+            letter-spacing: 8px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        
+        .start-subtitle {
+            font-size: 24px;
+            color: rgba(78, 45, 24, 0.9);
+            text-shadow: 0 1px 0 rgba(255, 248, 228, 0.72);
+            letter-spacing: 3px;
+        }
+        
+        .start-hint {
+            margin-top: 40px;
+            font-size: 20px;
+            color: rgba(106, 36, 27, 0.86);
+            text-shadow: 0 1px 0 rgba(255, 244, 218, 0.8);
+            animation: pulse 2s infinite;
+        }
+    </style>
+    <link rel="stylesheet" href="../assets/night-theme.css">
+</head>
+<body class="moonlit-night">
+    <!-- 开始页面 -->
+    <div id="start-page">
+        <div class="start-container" id="startContainer">
+            <div class="start-title">诗歌介绍</div>
+            <div class="start-subtitle">春江花月夜</div>
+            <div class="start-hint">点击开始观看 ▶</div>
+        </div>
+    </div>
+    <div class="video-container is-hidden" id="videoContainer">
+        <div class="video-wrapper">
+            <video id="introVideo" playsinline controls preload="none">
+                您的浏览器不支持视频播放。
+            </video>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('introVideo');
+        const videoContainer = document.getElementById('videoContainer');
+        const startPage = document.getElementById('start-page');
+        const startContainer = document.getElementById('startContainer');
+        const cacheBuster = new URLSearchParams(window.location.search).get('v') || Date.now().toString();
+
+        function assetUrl(path) {
+            const sep = path.includes('?') ? '&' : '?';
+            return `${path}${sep}v=${encodeURIComponent(cacheBuster)}`;
+        }
+        let hasStarted = false;
+        
+        // 点击开始
+        startContainer.addEventListener('click', () => {
+            startPage.classList.add('fade-out');
+            setTimeout(() => {
+                hasStarted = true;
+                videoContainer.classList.remove('is-hidden');
+                video.src = assetUrl('https://github.com/Viserune/cjhyy-web/releases/download/v1.0.0/chapter3.mp4');
+                video.load();
+                const playPromise = video.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        showClickToPlay();
+                    });
+                }
+            }, 1000);
+        });
+
+        // 单视频播放结束后直接通知主页面进入下一环节
+        video.addEventListener('ended', () => {
+            videoContainer.classList.add('zoom');
+
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'introVideoEnded',
+                    page: 3
+                }, '*');
+                window.parent.postMessage({
+                    type: 'pageCompleted',
+                    page: 3
+                }, '*');
+            }
+            
+            setTimeout(() => {
+                videoContainer.classList.remove('zoom');
+            }, 800);
+        });
+        
+        // 监听主页面的暂停命令
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'pause') {
+                video.pause();
+            }
+        });
+        
+        // 显示点击播放提示
+        function showClickToPlay() {
+            const hint = document.createElement('div');
+            hint.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(145deg, rgba(245, 230, 200, 0.96), rgba(224, 194, 146, 0.94));
+                color: #5b3420;
+                padding: 20px 40px;
+                border-radius: 10px;
+                font-size: 20px;
+                cursor: pointer;
+                z-index: 1000;
+                border: 2px solid rgba(111, 75, 44, 0.78);
+                box-shadow: 0 10px 28px rgba(22, 12, 6, 0.4);
+            `;
+            hint.textContent = '点击播放视频 ▶';
+            videoContainer.appendChild(hint);
+            
+            hint.addEventListener('click', () => {
+                video.play();
+                hint.remove();
+            });
+        }
+        
+        // 不再自动加载第一个视频，等待用户点击开始
+    </script>
+</body>
+</html>

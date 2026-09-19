@@ -1,0 +1,404 @@
+<!--/* AI辅助生成:使用deepseek-R1/deepseek-v3 ,2026-2 */-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>诗意问答</title>
+    <script src="../assets/config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'STKaiti', 'KaiTi', 'FangSong', 'Songti SC', serif;
+            min-height: 100vh;
+            background-image: url('../assets/images/background3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 40px auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-family: 'KaiTi', serif;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #666;
+            margin: 20px 0;
+        }
+
+        .question-block {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(245, 245, 245, 0.8);
+            border-radius: 10px;
+            border-left: 5px solid #4a90e2;
+        }
+
+        .question-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .options-list {
+            list-style: none;
+        }
+
+        .option-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-item:hover {
+            background: #f0f7ff;
+            border-color: #4a90e2;
+        }
+
+        .option-item input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .btn {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 12px 20px;
+            background: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #357abd;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .score {
+            font-size: 2rem;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .explanation {
+            text-align: left;
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef9f0;
+            border-radius: 8px;
+            color: #2c3e50;
+            display: none;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            text-align: center;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: #fff;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .correct { color: #27ae60; font-weight: bold; }
+        .wrong { color: #c0392b; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="../assets/night-theme.css">
+</head>
+<body class="moonlit-night">
+
+    <div class="container">
+        <h1>《春江花月夜》诗意问答</h1>
+        
+        <div id="loading" class="loading">正在请AI为您生成题目，请稍候...</div>
+        
+        <div id="quiz-container" style="display: none;">
+            <div id="questions-list"></div>
+            <button id="submit-btn" class="btn" onclick="submitQuiz()">提交答案</button>
+        </div>
+
+        <div id="result-section" class="result-section">
+            <div class="score" id="score-display"></div>
+            <div id="explanation-board" class="explanation"></div>
+            <button id="complete-btn" class="btn" onclick="showAward()" style="background: #e67e22; margin-top: 30px;">完成学习</button>
+        </div>
+    </div>
+
+    <!-- Award Modal -->
+    <div id="award-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAward()">&times;</span>
+            <img src="../assets/images/award.png" alt="学习奖励">
+        </div>
+    </div>
+
+    <script>
+        let quizData = [];
+        let hasReportedCompletion = false;
+        const QUIZ_COUNT = 5;
+
+        // 初始化：请求DeepSeek生成题目
+        async function generateQuiz() {
+            const prompt = `
+你是一位熟悉《春江花月夜》的文学老师。请基于张若虚的《春江花月夜》生成${QUIZ_COUNT}道单项选择题，考查学生对诗歌内容、意境或文学常识的理解。
+请确保返回数组长度恰好为${QUIZ_COUNT}，每题必须有4个选项。
+请必须严格以以下 JSON 数组的格式返回（不要包含任何其他说明文字性内容，不要加 markdown 代码块符号，就只返回纯JSON数组字符串）：
+[
+  {
+    "id": 1,
+    "question": "题目内容",
+    "options": ["A. 选项1", "B. 选项2", "C. 选项3", "D. 选项4"],
+    "answer": 0, // 正确答案在 options 数组中的索引（0-3）
+    "explanation": "答案解析"
+  }
+]`;
+
+            try {
+                const response = await fetch(APP_CONFIG.deepseek.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${APP_CONFIG.deepseek.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: APP_CONFIG.deepseek.model || 'deepseek-chat',
+                        messages: [
+                            { role: 'user', content: prompt }
+                        ],
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API请求失败');
+                }
+
+                const data = await response.json();
+                let content = data.choices[0].message.content.trim();
+                
+                // 尝试清理可能的markdown格式
+                if (content.startsWith('```json')) {
+                    content = content.substring(7);
+                }
+                if (content.endsWith('```')) {
+                    content = content.substring(0, content.length - 3);
+                }
+
+                const parsed = JSON.parse(content.trim());
+                quizData = normalizeQuizData(parsed, QUIZ_COUNT);
+                renderQuiz();
+                
+            } catch (error) {
+                console.error('Error generating quiz:', error);
+                document.getElementById('loading').innerText = '生成题目失败，请刷新页面重试。';
+            }
+        }
+
+        function normalizeQuizData(raw, expectedCount) {
+            if (!Array.isArray(raw)) {
+                throw new Error('题目格式不是数组');
+            }
+
+            const cleaned = raw
+                .filter((item) => item && typeof item === 'object')
+                .map((item, idx) => ({
+                    id: idx + 1,
+                    question: String(item.question || '').trim(),
+                    options: Array.isArray(item.options) ? item.options.slice(0, 4).map(opt => String(opt)) : [],
+                    answer: Number.isInteger(item.answer) ? item.answer : -1,
+                    explanation: String(item.explanation || '暂无解析')
+                }))
+                .filter((item) => item.question && item.options.length === 4 && item.answer >= 0 && item.answer <= 3);
+
+            if (cleaned.length < expectedCount) {
+                throw new Error(`题目不足 ${expectedCount} 道`);
+            }
+
+            return cleaned.slice(0, expectedCount);
+        }
+
+        // 渲染题目
+        function renderQuiz() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            
+            const listEl = document.getElementById('questions-list');
+            let html = '';
+            
+            quizData.forEach((q, index) => {
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHtml += `
+                        <li class="option-item">
+                            <label style="display:block; cursor:pointer;">
+                                <input type="radio" name="q${index}" value="${optIdx}">
+                                ${opt}
+                            </label>
+                        </li>
+                    `;
+                });
+
+                html += `
+                    <div class="question-block" id="block-${index}">
+                        <div class="question-title">${index + 1}. ${q.question}</div>
+                        <ul class="options-list">
+                            ${optionsHtml}
+                        </ul>
+                        <div id="feedback-${index}" style="margin-top:10px; font-size:0.9rem;"></div>
+                    </div>
+                `;
+            });
+            
+            listEl.innerHTML = html;
+        }
+
+        // 提交答案并评分
+        function submitQuiz() {
+            let score = 0;
+            let total = quizData.length;
+            let allAnswered = true;
+            let explanationHtml = '<h3>答案解析：</h3><br/>';
+
+            quizData.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                if (!selected) {
+                    allAnswered = false;
+                }
+            });
+
+            if (!allAnswered) {
+                alert('请回答完所有问题后再提交。');
+                return;
+            }
+
+            document.getElementById('submit-btn').style.display = 'none';
+
+            quizData.forEach((q, index) => {
+                const selectedVal = parseInt(document.querySelector(`input[name="q${index}"]:checked`).value);
+                const feedbackEl = document.getElementById(`feedback-${index}`);
+                
+                // 禁用所有单选框
+                const inputs = document.querySelectorAll(`input[name="q${index}"]`);
+                inputs.forEach(input => input.disabled = true);
+
+                if (selectedVal === q.answer) {
+                    score += 1;
+                    feedbackEl.innerHTML = '<span class="correct">回答正确！</span>';
+                } else {
+                    feedbackEl.innerHTML = `<span class="wrong">回答错误。正确答案是：${q.options[q.answer]}</span>`;
+                }
+
+                explanationHtml += `
+                    <p><strong>第${index + 1}题：</strong> ${q.explanation}</p><br/>
+                `;
+            });
+
+            const totalScore = (score === total)
+                ? 100
+                : Math.round((score / total) * 100);
+            
+            // 显示结果
+            const resultSec = document.getElementById('result-section');
+            const scoreDisplay = document.getElementById('score-display');
+            const explanationBoard = document.getElementById('explanation-board');
+            
+            resultSec.style.display = 'block';
+            scoreDisplay.innerText = `您的得分：${totalScore} 分`;
+            
+            explanationBoard.innerHTML = explanationHtml;
+            explanationBoard.style.display = 'block';
+
+            // 通知主页面：第8页问答已完成（仅发送一次）
+            if (!hasReportedCompletion && window.parent !== window) {
+                window.parent.postMessage({ type: 'pageCompleted', page: 8 }, '*');
+                hasReportedCompletion = true;
+            }
+        }
+
+        function showAward() {
+            document.getElementById('award-modal').style.display = 'flex';
+        }
+
+        function closeAward() {
+            document.getElementById('award-modal').style.display = 'none';
+        }
+
+        // 页面加载完成后自动生成题目
+        window.onload = () => {
+            generateQuiz();
+        };
+    </script>
+</body>
+</html>
